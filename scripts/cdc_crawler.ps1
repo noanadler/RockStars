@@ -60,8 +60,7 @@ function Get-RoutineVaccines
 
 function Get-VaccineRecommendationsByCountry
 {
-    param ($Link)
-    $Response = Invoke-WebRequest ("http://wwwnc.cdc.gov$Link")
+    param ($Response)
 
     $LinksPages = $Response.ParsedHTML.body.getElementsByTagName('td') |  Where {$_.getAttributeNode('class').Value -match 'group-head|traveler-disease|traveler-findoutwhy'}
     $CountryDiseases = @()
@@ -89,12 +88,47 @@ function Get-VaccineRecommendationsByCountry
         }
     }
 
-    return $CountryDiseases
+    return ($CountryDiseases | ConvertTo-Json)
 }
 
-#Get list of countries/associated CDC page links and output to CSV
+function Get-PackingListByCountry
+{
+    param ($Response)
+
+    $LinksPages = $Response.ParsedHTML.body.getElementsByTagName('ul') |  Where {$_.className -match 'packing'}
+    $Categories = $Response.ParsedHTML.body.getElementsByTagName('h4') |  Where {$_.className -match 'traveler-text-color'}
+    $PackingList = @()
+
+    for($i = 0; $i -lt $LinksPages.Length; ++$i)
+    {
+       $Category = $Categories[$i].innerText
+       $Items = ($LinksPages[$i]).innerHTML -split "<li>|</li>" 
+       foreach($Item in $Items)
+       {
+            if($Item.Length -gt 29)
+            {
+                if($Item.contains("<span>"))
+                {
+                    $ItemNotes = (($Item -split "</span><br>")[1] -replace "<span>","" -replace "</span>","" -replace '<p">',"" -replace '</p">',"").trim()
+                }
+                $ItemName = (($Item -split "</span><br>")[0] -replace '<span style="font-weight: bold;">',"" -replace "</a>","" -replace '<a href="[^>]+>',"").trim()
+                $details = @{            
+                    Item   = $ItemName             
+                    Notes  = $ItemNotes                
+                    Category      = $Category
+                } 
+                $PackingList += New-Object PSObject -Property $details
+                $ItemNotes = ""
+            }
+
+       }
+    }
+
+    return ($PackingList | ConvertTo-Json)
+}
+
+#Get list of countries/associated CDC page links
 $Countries = Get-Countries
-$Countries | export-csv -Path ("Countries.csv") -NoTypeInformation
 
 #Get routine vaccine lists for adults and children and output to CSV
 Get-RoutineVaccines -Type "Child" | export-csv -Path ("RoutineChildVaccines.csv") -NoTypeInformation
@@ -103,14 +137,31 @@ Get-RoutineVaccines -Type "Adult" | export-csv -Path ("RoutineAdultVaccines.csv"
 
 
 
-#Output disease/vaccine recommendations for each country to CSV
+#Get other info for each country
+$CountryTable = @()
 $Countries | % { 
     echo ($_.Country + "`n")
     
-    $CountryVaccines = Get-VaccineRecommendationsByCountry -Link $_.URL
+    #Get diseases/vaccines
+    $Link = $_.URL
+    $Response = Invoke-WebRequest ("http://wwwnc.cdc.gov$Link")
+    $CountryVaccines = Get-VaccineRecommendationsByCountry -Response $Response
+        
+    #Get packing list
+    $Link = (($Response.ParsedHTML.body.getElementsByClassName("section_body") | select "innerHTML").innerHTML -join "" -split '<p>Use the <a href="|">Healthy')[1]
+    $Response = Invoke-WebRequest ("http://wwwnc.cdc.gov$Link")
+    $CountryPackingList = Get-PackingListByCountry -Response $Response
 
-    echo $CountryVaccines
+    $details = @{            
+                    Country   = $_.Country            
+                    RecommendedVaccines  = $CountryVaccines               
+                    PackingList      = $CountryPackingList
+                } 
+    
+    $CountryTable += New-Object PSObject -Property $details
 
-    $CountryVaccines | export-csv -Path ($_.Country + ".csv") -NoTypeInformation
-
+    $details
 }
+
+$CountryTable | export-csv -Path ("Countries.csv") -NoTypeInformation
+
