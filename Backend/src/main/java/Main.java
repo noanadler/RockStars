@@ -1,7 +1,14 @@
 import static spark.Spark.*;
 
+import java.sql.DriverManager;
 
 import org.json.JSONObject;
+import org.sql2o.Connection;
+import org.sql2o.Sql2o;
+
+
+
+
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.JsonNode;
@@ -14,6 +21,22 @@ public class Main {
         	JSONObject obj = response.getBody().getObject();
         	return obj.toString();
         });
+        
+        get("/test_db", (req, res) -> {
+        	//"jdbc:postgresql://save_travels
+        	//java.sql.Connection connection = DriverManager.getConnection(dbUrl);
+        	/*Sql2o sql2o = new Sql2o(dbUrl);
+        	
+        	try(Connection con = sql2o.open()) {
+        		System.out.println("CONNCECTED");
+        	}
+
+        	return "HERE";
+        	*/
+            String dbUrl = System.getenv("JDBC_DATABASE_URL");
+            DriverManager.getConnection(dbUrl);
+        	return "SUCCESS";
+        });        
     }
     
     static int getHerokuAssignedPort() {
