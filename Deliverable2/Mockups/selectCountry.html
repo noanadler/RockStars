@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Safe Travels</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <style>
+    .placeholder img {
+        display: inline-block;
+        border-radius: 50%;
+    }
+    body { padding-top: 50px; }
+    .placeholders {
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    </style>
+
+  </head>
+  <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Safe Travels</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#">Help</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container">
+       <div class="row">
+         <div class="col-xs-12">
+           <h1 class="page-header">Welcome</h1>
+          </div>
+       </div>
+        <form action="dashboard.html">
+          <i class="fa fa-globe" style='font-size: 100px;'></i>
+          <h4>Select Countries</h4>
+          <select name="countires" multiple>
+            <option value="afghanistan">Afghanistan</option>
+            <option value="albania">Albania</option>
+            <option value="algeria">Algeria</option>
+            <option value="andorra">Andorra</option>
+            <option value="angola">Angola</option>
+          </select>
+          <p>Hold down the Ctrl (windows) / Command (Mac) button to select multiple options.</p>
+          <div style="text-align:center">
+            <input type="submit" value="Plan My Trip"/>
+          </div>
+        </form>
+
+
+
+      </div>
+    </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">Checklist</h4>
+        </div>
+        <div class="modal-body">
+          <div class="list-group">
+            <a href="#" class="list-group-item active">
+              Checklist Item 1
+            </a>
+            <a href="#" class="list-group-item"> Checklist Item 2 </a>
+            <a href="#" class="list-group-item"> Checklist Item 3 </a>
+            <a href="#" class="list-group-item"> Checklist Item 4 </a>
+            <a href="#" class="list-group-item"> Checklist Item 5 </a>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+  </body>
+</html>
