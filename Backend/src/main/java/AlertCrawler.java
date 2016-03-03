@@ -47,14 +47,21 @@ public class AlertCrawler {
 		    	Elements alerts = notices.getElementsByTag("li");
 		    	for (Element alert : alerts) {
 		    		  String alertTitle = (alert.getElementsByTag("a")).text();
+		    		  String alertDate = (alert.getElementsByClass("date")).text();
 		    		  String alertSummary = (alert.getElementsByClass("summary")).text();
 		    		  if(!alertSummary.contains("has been removed.") && 
 		    				  !alertSummary.equals("Removed"))
 		    		  {
-		    			  //Will need to replace these print outs with database upserts
+		    			  //This is an active alert ; we will need to replace these printouts with database upserts
 			    		  System.out.println(country);
 			    		  System.out.println(alertTitle);
 			    		  System.out.println(alertSummary);
+			    		  System.out.println(alertDate);
+		    		  }
+		    		  else
+		    		  {
+		    			  //We will need to remove this entry in the database
+		    			  System.out.println("Removing " + alertTitle + " from " + country);
 		    		  }
 		    		}
 	    	}
