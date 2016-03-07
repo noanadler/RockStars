@@ -3,8 +3,11 @@ import static spark.Spark.*;
 import java.sql.DriverManager;
 
 import org.json.JSONObject;
+import org.postgresql.ds.PGSimpleDataSource;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
+
+
 
 
 
@@ -12,6 +15,8 @@ import org.sql2o.Sql2o;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.JsonNode;
+
+import data.HerokuDataSource;
 
 public class Main {
     public static void main(String[] args) {
@@ -23,19 +28,14 @@ public class Main {
         });
         
         get("/test_db", (req, res) -> {
-        	//"jdbc:postgresql://save_travels
-        	//java.sql.Connection connection = DriverManager.getConnection(dbUrl);
-        	/*Sql2o sql2o = new Sql2o(dbUrl);
+        	Sql2o sql2o = new Sql2o(new HerokuDataSource());
         	
         	try(Connection con = sql2o.open()) {
         		System.out.println("CONNCECTED");
+        		return "CONNECTED";
+        	} catch (Exception e) {
+        		return e.getMessage();
         	}
-
-        	return "HERE";
-        	*/
-            String dbUrl = System.getenv("JDBC_DATABASE_URL");
-            DriverManager.getConnection(dbUrl);
-        	return "SUCCESS";
         });        
     }
     
