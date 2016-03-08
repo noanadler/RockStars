@@ -17,7 +17,7 @@ public class HerokuDataSource extends PGSimpleDataSource implements DataSource {
 	    String dbUrl = System.getenv("JDBC_DATABASE_URL");
 
 		if(System.getenv("JDBC_DATABASE_URL") == null) {
-		    dbUrl = "jdbc:postgresql://ec2-54-83-201-196.compute-1.amazonaws.com:5432/d85bpoit51rit4?user=zbveiihtcvxqzi&password=lsWrOZHYZZT7TnBylzxXM3wxIz&sslmode=require";
+		    dbUrl = "";
 		}
 		
 		return DriverManager.getConnection(dbUrl);
