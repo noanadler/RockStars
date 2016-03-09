@@ -1,22 +1,34 @@
 import java.io.IOException;
-import java.util.ArrayList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.sql2o.Connection;
+import org.sql2o.Sql2o;
+import org.sql2o.Sql2oException;
+
+import data.HerokuDataSource;
 
 public class AlertCrawler {
     public static void main(String[] args) {
+		String format = "MMMM dd, yyyy";
+		SimpleDateFormat sdf = new SimpleDateFormat(format);
+    	
+    	Sql2o sql2o = new Sql2o(new HerokuDataSource());
+    	
+    	Connection con = sql2o.open();
     	
     	Document doc = null;
 		try {
 			doc = Jsoup.connect("http://wwwnc.cdc.gov/travel/destinations/list").get();
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 		
 		HashMap<String, String> countryLinks = new HashMap<String, String>();
@@ -24,7 +36,6 @@ public class AlertCrawler {
 		for(Element bullet : bullets ){
 			Elements CountryData = bullet.getElementsByTag("li");
 			for(Element Country : CountryData){
-				String countryName = Country.getElementsByTag("a").text();
 				countryLinks.put( Country.getElementsByTag("a").text(),  Country.getElementsByTag("a").attr("href"));
 			}				
 		}
@@ -39,7 +50,7 @@ public class AlertCrawler {
 			try {
 				doc = Jsoup.connect("http://wwwnc.cdc.gov" + link).get();
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.out.println(e.getMessage());
 			}
 	    	Element notices = doc.getElementById("travel-notices");
 	    	if(notices != null)
@@ -47,22 +58,38 @@ public class AlertCrawler {
 		    	Elements alerts = notices.getElementsByTag("li");
 		    	for (Element alert : alerts) {
 		    		  String alertTitle = (alert.getElementsByTag("a")).text();
-		    		  String alertDate = (alert.getElementsByClass("date")).text();
 		    		  String alertSummary = (alert.getElementsByClass("summary")).text();
-		    		  if(!alertSummary.contains("has been removed.") && 
-		    				  !alertSummary.equals("Removed"))
-		    		  {
-		    			  //This is an active alert ; we will need to replace these printouts with database upserts
-			    		  System.out.println(country);
-			    		  System.out.println(alertTitle);
-			    		  System.out.println(alertSummary);
-			    		  System.out.println(alertDate);
+		    		  String alertStatus = "started_at";
+		    		  String date = (alert.getElementsByClass("date")).text();
+		    		  Date alertDate = null;
+		    		  
+		    		  try {
+		    		      alertDate = sdf.parse(date);
+		    		  } catch (ParseException e) {
+		    			  System.out.println(e.getMessage());
 		    		  }
-		    		  else
+		    		  
+		    	      String insertTravelAlertSQL = "INSERT INTO alerts(country_id, title, description, started_at) " +
+		    	    			"VALUES (:country_id, :title, :description, :started_at)";
+		    		  
+		    		  if(alertSummary.contains("has been removed.") || alertSummary.equals("Removed"))
 		    		  {
-		    			  //We will need to remove this entry in the database
-		    			  System.out.println("Removing " + alertTitle + " from " + country);
-		    		  }
+		    			  alertStatus = "ended_at";
+			    	      insertTravelAlertSQL = "INSERT INTO alerts(country_id, title, description, ended_at) " +
+			    	    			"VALUES (:country_id, :title, :description, :ended_at)";
+		    		  }		    		  
+		    		  
+		    		  try {
+					    	con.createQuery(insertTravelAlertSQL)
+					        .addParameter("country_id", country)
+					        .addParameter("title", alertTitle)
+					        .addParameter("description", alertSummary)
+					        .addParameter(alertStatus, alertDate)
+					        .executeUpdate();	
+						} catch (Sql2oException e) {
+							System.out.println(e.getMessage());
+						}
+		    		  
 		    		}
 	    	}
 	        it.remove();
