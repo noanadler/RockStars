@@ -36,7 +36,10 @@ public class AlertCrawler {
 		for(Element bullet : bullets ){
 			Elements CountryData = bullet.getElementsByTag("li");
 			for(Element Country : CountryData){
-				countryLinks.put( Country.getElementsByTag("a").text(),  Country.getElementsByTag("a").attr("href"));
+				String[] urlParts = Country.getElementsByTag("a").attr("href").split("/");		    	
+		    	String countryKey = urlParts[urlParts.length - 1]; // ID
+		    	System.out.println(countryKey);
+				countryLinks.put( countryKey,  Country.getElementsByTag("a").attr("href"));
 			}				
 		}
 		
