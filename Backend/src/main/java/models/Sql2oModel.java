@@ -15,35 +15,33 @@ public class Sql2oModel implements Model {
 	@Override
 	public Country getCountry(String countryId) {
         try (Connection conn = sql2o.open()) {
-			List<Country> countries = conn.createQuery("select country, full_name from travel_information where country=:countryId")
+			List<Country> countries = conn.createQuery("select country, full_name, vaccines as vaccine_names, packing_list as packinglist_names from travel_information where country=:countryId")
 					.addParameter("countryId", countryId)
 	                .executeAndFetch(Country.class);
 			Country country = countries.get(0);
-			country.setVaccines(getCountryVaccines(countryId));
-			//country.setItems(getCountryPackingListItems(countryId));
+			country.setVaccines(getCountryVaccines(country));
+			country.setItems(getCountryPackingListItems(country));
 
-			return countries.get(0);
+			return country;
         }
 	}
 
 	@Override
-	public List<Vaccine> getCountryVaccines(String countryId) {
+	public List<Vaccine> getCountryVaccines(Country country) {
         try (Connection conn = sql2o.open()) {
-        	List<String[]> countryVaccineNames = conn.createQuery("select vaccines from travel_information where country=:countryId")
-				.addParameter("countryId", countryId)
-                .executeAndFetch(String[].class);
-        	
-            List<Vaccine> vaccines = conn.createQuery("select * from vaccines where name in :vaccines")  
-    				.addParameter("vaccines", countryVaccineNames.get(0))
+
+            List<Vaccine> vaccines = conn.createQuery("select * from vaccines where name in ('" + String.join(",", country.vaccine_names).replace(",", "','") + "')".replace(" '", "'"))  
+    				//.addParameter("vaccines", "'" + String.join(",", country.vaccine_names).replace(",", "','").replace(" '", "'") + "'")
                     .executeAndFetch(Vaccine.class);
             return vaccines;
         }
 	}
 
 	@Override
-	public List<PackingListItem> getCountryPackingListItems(String countryId) {
+	public List<PackingListItem> getCountryPackingListItems(Country country) {
         try (Connection conn = sql2o.open()) {
-            List<PackingListItem> packingListItems = conn.createQuery("select * from packing_list_items")
+            List<PackingListItem> packingListItems = conn.createQuery("select * from packing_list_items where name in ('" + String.join(",", country.packinglist_names).replace(",", "','") + "')".replace(" '", "'"))
+            		//.addParameter("listitems", String.join(",", country.packinglist_names))
                     .executeAndFetch(PackingListItem.class);
             return packingListItems;
         }

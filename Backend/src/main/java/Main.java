@@ -1,36 +1,28 @@
 import static spark.Spark.*;
 
-import java.sql.DriverManager;
 
 import models.Country;
 import models.Model;
 import models.Sql2oModel;
 
 import org.json.JSONObject;
-import org.postgresql.ds.PGSimpleDataSource;
-import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 
-
-
-
-
-
-
-
-
 import org.sql2o.quirks.PostgresQuirks;
+import org.sql2o.quirks.Quirks;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.JsonNode;
 
+import data.ArrayConverter;
 import data.HerokuDataSource;
 
 public class Main {
     public static void main(String[] args) {
         port(getHerokuAssignedPort());
-    	Sql2o sql2o = new Sql2o(new HerokuDataSource(), new PostgresQuirks());
+        Quirks arraySupport = ArrayConverter.arrayConvertingQuirks(new PostgresQuirks(), true, false);
+    	Sql2o sql2o = new Sql2o(new HerokuDataSource(), arraySupport);
         Model model = new Sql2oModel(sql2o);
         
         get("/test", (req, res) -> {
@@ -41,7 +33,7 @@ public class Main {
         
         get("/country/:name", (req, res) -> {
         	Country country = model.getCountry(req.params("name"));
-        	return country.getFullName();
+        	return country.getVaccines().size() + " " + country.getItems().size();
         });        
     }
     
