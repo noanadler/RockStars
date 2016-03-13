@@ -21,7 +21,6 @@ public class Sql2oModel implements Model {
 			Country country = countries.get(0);
 			country.setVaccines(getCountryVaccines(country));
 			country.setItems(getCountryPackingListItems(country));
-
 			return country;
         }
 	}

@@ -11,6 +11,7 @@ import org.sql2o.Sql2o;
 import org.sql2o.quirks.PostgresQuirks;
 import org.sql2o.quirks.Quirks;
 
+import com.google.gson.Gson;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.JsonNode;
@@ -33,7 +34,9 @@ public class Main {
         
         get("/country/:name", (req, res) -> {
         	Country country = model.getCountry(req.params("name"));
-        	return country.getVaccines().size() + " " + country.getItems().size();
+			Gson gson = new Gson();
+			String json = gson.toJson(country); 
+        	return json;
         });        
     }
     
