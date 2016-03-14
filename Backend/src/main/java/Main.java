@@ -36,6 +36,9 @@ public class Main {
         	Country country = model.getCountry(req.params("name"));
 			Gson gson = new Gson();
 			String json = gson.toJson(country); 
+			
+			res.status(200);
+			res.type("application/json");
         	return json;
         });        
     }
