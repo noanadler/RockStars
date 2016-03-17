@@ -24,6 +24,15 @@ public class Sql2oModel implements Model {
 			return country;
         }
 	}
+	
+	@Override
+	public List<Country> getCountries() {
+        try (Connection conn = sql2o.open()) {
+			List<Country> countries = conn.createQuery("select country, full_name from travel_information")
+	                .executeAndFetch(Country.class);
+			return countries;
+        }
+	}
 
 	@Override
 	public List<Vaccine> getCountryVaccines(Country country) {

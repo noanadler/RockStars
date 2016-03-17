@@ -46,7 +46,27 @@
       <artifactId>gson</artifactId>
       <version>2.6.2</version>
       <scope>compile</scope>
-    </dependency>	  
+    </dependency>
+    <dependency>
+	<groupId>org.pac4j</groupId>
+	<artifactId>spark-pac4j</artifactId>
+	<version>1.0.3</version>
+</dependency>	
+<dependency>
+    <groupId>org.pac4j</groupId>
+    <artifactId>pac4j-jwt</artifactId>
+    <version>1.8.7</version>
+</dependency>  
+<dependency>
+    <groupId>org.pac4j</groupId>
+    <artifactId>pac4j-http</artifactId>
+    <version>1.8.7</version>
+</dependency>  
+<dependency>
+	<groupId>org.pac4j</groupId>
+	<artifactId>pac4j-core</artifactId>
+	<version>1.8.2</version>
+</dependency>
   </dependencies>
  <build>
     <plugins>
