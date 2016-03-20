@@ -15,7 +15,7 @@ export default Ember.Route.extend({
   },
   actions: {
     submit() {
-
+      this.transitionTo('dashboard')
     }
   }
 });
