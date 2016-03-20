@@ -77,11 +77,10 @@ public class Main {
         
         
         before("/login", new RequiresAuthenticationFilter(config, "DirectBasicAuthClient"));
-        before("/testauth", new RequiresAuthenticationFilter(config, "ParameterClient"));
+        before("/testauth", new RequiresAuthenticationFilter(config, "HeaderClient"));
         
         //accept basic auth info in HTTPS header, return token
-        get("/login", (req, res) -> {
-        	
+        get("/login", (req, res) -> {        	
         	final UserProfile profile = getUserProfile(req, res);
         	System.out.println(profile);
     		JwtGenerator generator = new JwtGenerator(JWT_SALT);
