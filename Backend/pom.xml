@@ -50,7 +50,7 @@
     <dependency>
 	<groupId>org.pac4j</groupId>
 	<artifactId>spark-pac4j</artifactId>
-	<version>1.0.3</version>
+	<version>1.1.0</version>
 </dependency>	
 <dependency>
     <groupId>org.pac4j</groupId>
@@ -65,7 +65,17 @@
 <dependency>
 	<groupId>org.pac4j</groupId>
 	<artifactId>pac4j-core</artifactId>
-	<version>1.8.2</version>
+	<version>1.8.7</version>
+</dependency>
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt</artifactId>
+    <version>0.6.0</version>
+</dependency>
+<dependency>
+    <groupId>com.sparkjava</groupId>
+    <artifactId>spark-template-mustache</artifactId>
+    <version>2.3</version>
 </dependency>
   </dependencies>
  <build>

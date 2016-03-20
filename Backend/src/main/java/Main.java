@@ -1,19 +1,36 @@
 import static spark.Spark.*;
 
+import java.lang.reflect.Field;
+import java.security.Key;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import models.Country;
 import models.Model;
 import models.Sql2oModel;
+import spark.ModelAndView;
+import spark.Request;
+import spark.Response;
 
 import org.json.JSONObject;
 import org.pac4j.core.authorization.RequireAnyRoleAuthorizer;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
+import org.pac4j.core.http.HttpActionAdapter;
+import org.pac4j.core.profile.ProfileManager;
+import org.pac4j.core.profile.UserProfile;
+import org.pac4j.http.client.direct.DirectBasicAuthClient;
 import org.pac4j.http.client.direct.ParameterClient;
+import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
 import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
+import org.pac4j.jwt.profile.JwtGenerator;
+import org.pac4j.sparkjava.DefaultHttpActionAdapter;
 import org.pac4j.sparkjava.RequiresAuthenticationFilter;
+import org.pac4j.sparkjava.SparkWebContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sql2o.Sql2o;
 
 import org.sql2o.quirks.PostgresQuirks;
@@ -22,31 +39,77 @@ import org.sql2o.quirks.Quirks;
 import com.google.gson.Gson;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
+
+import auth.AuthFactory;
+
 import com.mashape.unirest.http.JsonNode;
 
 import data.ArrayConverter;
 import data.HerokuDataSource;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.impl.crypto.MacProvider;
 
 public class Main {
+	
+	private static UserProfile getUserProfile(final Request request, final Response response) {
+		final SparkWebContext context = new SparkWebContext(request, response);
+		final ProfileManager manager = new ProfileManager(context);
+		return manager.get(true);
+	}
+	
+	private final static String JWT_SALT = "12341234123412341234123412341234";
+    
     public static void main(String[] args) {
+	    try {
+	        Field field = Class.forName("javax.crypto.JceSecurity").getDeclaredField("isRestricted");
+	        field.setAccessible(true);
+	        field.set(null, java.lang.Boolean.FALSE);
+	    } catch (Exception ex) {
+	    }
         port(getHerokuAssignedPort());
         Quirks arraySupport = ArrayConverter.arrayConvertingQuirks(new PostgresQuirks(), true, false);
     	Sql2o sql2o = new Sql2o(new HerokuDataSource(), arraySupport);
         Model model = new Sql2oModel(sql2o);
-        /*
-        // in progress - JWT user auth
-        ParameterClient parameterClient = new ParameterClient("token", new JwtAuthenticator("salt"));
-        parameterClient.setSupportGetRequest(true);
-        Clients clients = new Clients(parameterClient);
-        final Config config = new Config(clients);
-        config.addAuthorizer("admin", new RequireAnyRoleAuthorizer("ROLE_ADMIN"));
-        final String param = "ParameterClient";
-        before("/test", new RequiresAuthenticationFilter(clients, clientName));
-        */
-        get("/test", (req, res) -> {
-        	HttpResponse<JsonNode> response = Unirest.get("http://polaris.i3l.gatech.edu:8080/gt-fhir-webapp/base/Observation/1?_format=json").asJson();
-        	JSONObject obj = response.getBody().getObject();
-        	return obj.toString();
+               
+        // JWT user auth setup
+        final Config config = new AuthFactory(JWT_SALT).build();
+        
+        
+        before("/login", new RequiresAuthenticationFilter(config, "DirectBasicAuthClient"));
+        before("/testauth", new RequiresAuthenticationFilter(config, "HeaderClient"));
+        
+        //accept basic auth info in HTTPS header, return token
+        get("/login", (req, res) -> {        	
+        	final UserProfile profile = getUserProfile(req, res);
+        	System.out.println(profile);
+    		JwtGenerator generator = new JwtGenerator(JWT_SALT);
+    		String token = "";
+    		if (profile != null) {
+    			token = generator.generate(profile);
+    		}
+    		final Map map = new HashMap();
+    		map.put("token", token);
+    		
+    		Gson gson = new Gson();
+			String json = gson.toJson(map); 
+			
+			res.status(200);
+			res.type("application/json");
+        	return json;
+    		
+        });
+        
+        //this protected page is only visible with a valid JWT token
+        get("/testauth", (req, res) -> {          
+        	List<Country> countries = model.getCountries();
+			Gson gson = new Gson();
+			String json = gson.toJson(countries); 
+			
+			res.status(200);
+			res.type("application/json");
+        	return json;
+    		
         });
         
         get("/country/:name", (req, res) -> {
