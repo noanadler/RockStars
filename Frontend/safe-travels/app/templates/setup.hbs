@@ -1,26 +1,39 @@
 <div class="row">
   <div class="col-xs-12">
     <h1 class="page-header">Plan Trip</h1>
-   </div>
+  </div>
 </div>
-<div class="row">
-  <div class="col-xs-12">
-    <form action="dashboard.html">
-     <i class="fa fa-globe" style='font-size: 100px;'></i>
-     <h4>Select Countries</h4>
-     {{select-2
-        content=model.countries
-        value=model.trip.countries
-        multiple=true
-        placeholder="Select your trip countries"
-      }}
-     <p> </p>
-      {{bootstrap-datepicker placeholder="Select Your Birthdate" class="form-control"}}
-     <p> </p>
-     <input type="checkbox" name="emailChckbox"> I would like to receive email notification about health hazards around me<br>
-     <div style="text-align:center">
-       <input type="submit" value="Plan My Trip"/>
+<form>
+  <div class="row">
+    <div class="col-sm-1 col-xs-12">
+       <i class="fa fa-globe" style='font-size: 100px; font-size:7vw'></i>
+    </div>
+    <div class="col-sm-11 col-xs-12">
+      <h4>Select Countries</h4>
+      {{select-2
+         content=model.countries
+         value=model.trip.countries
+         multiple=true
+         placeholder="Select your trip countries"
+       }}
      </div>
-   </form>
- </div>
-</div>
+  </div>
+  <div class="row">
+    <div class="col-sm-1 col-xs-12">
+       <i class="fa fa-calendar" style='font-size: 100px; font-size:7vw'></i>
+    </div>
+    <div class="col-sm-11 col-xs-12">
+      <h4>Select Birthdate</h4>
+      {{bootstrap-datepicker placeholder="Select Your Birthdate" class="form-control" value=model.trip.birthdate}}
+    </div>
+  </div>
+  <div class='row'>
+    <div class="col-xs-12">
+      <br/>
+      <label><input type="checkbox" name="emailChckbox"> I would like to receive email notification about health hazards around me</label>
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary" {{action 'submit'}}>Plan My Trip</button>
+      </div>
+    </div>
+  </div>
+</form>
