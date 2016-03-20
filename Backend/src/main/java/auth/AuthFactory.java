@@ -25,6 +25,8 @@ public class AuthFactory implements ConfigFactory {
         
 		final ParameterClient parameterClient = new ParameterClient("token", new JwtAuthenticator(salt));
 		final DirectFormClient formClient = new DirectFormClient(new SimpleTestUsernamePasswordAuthenticator());
+		formClient.setUsernameParameter("username");
+		formClient.setPasswordParameter("password");
 		final HeaderClient headerClient = new HeaderClient(new JwtAuthenticator(salt));
         headerClient.setHeaderName("Authorization");
         headerClient.setPrefixHeader("Bearer ");

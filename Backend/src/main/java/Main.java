@@ -80,8 +80,9 @@ public class Main {
         before("/testauth", new RequiresAuthenticationFilter(config, "HeaderClient"));
         
         //accept basic auth info in HTTPS header, return token
-        post("/login", (req, res) -> {        	
+        post("/login/", (req, res) -> {        	
         	final UserProfile profile = getUserProfile(req, res);
+        	System.out.println(req.body());
         	System.out.println(profile);
     		JwtGenerator generator = new JwtGenerator(JWT_SALT);
     		String token = "";
