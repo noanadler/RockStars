@@ -76,11 +76,11 @@ public class Main {
         final Config config = new AuthFactory(JWT_SALT).build();
         
         
-        before("/login", new RequiresAuthenticationFilter(config, "DirectBasicAuthClient"));
+        before("/login", new RequiresAuthenticationFilter(config, "DirectFormClient"));
         before("/testauth", new RequiresAuthenticationFilter(config, "HeaderClient"));
         
         //accept basic auth info in HTTPS header, return token
-        get("/login", (req, res) -> {        	
+        post("/login", (req, res) -> {        	
         	final UserProfile profile = getUserProfile(req, res);
         	System.out.println(profile);
     		JwtGenerator generator = new JwtGenerator(JWT_SALT);
