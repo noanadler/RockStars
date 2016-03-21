@@ -6,8 +6,8 @@ CREATE TABLE IF NOT EXISTS users (
     email varchar(255),
     gender varchar(255),
     birthdate timestamp,
-	registered_at timestamp,
-	countrys text[]
+    registered_at timestamp,
+    countrys text[]
 );
 
 -- Travel Items - main table with country information
