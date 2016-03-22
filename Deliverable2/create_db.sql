@@ -1,12 +1,14 @@
 -- Users
 DROP TABLE IF EXISTS users CASCADE;
 CREATE TABLE IF NOT EXISTS users (
-    id serial PRIMARY KEY,
+    id uid PRIMARY KEY,
     name varchar(255),
     email varchar(255),
-    gender varchar(255),
+    gender varchar(1),
     birthdate timestamp,
     registered_at timestamp,
+    verified boolean DEFAULT 'f',
+    notification boolean DEFAULT 'f',
     countrys text[]
 );
 
