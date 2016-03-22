@@ -1,7 +1,7 @@
 -- Users
 DROP TABLE IF EXISTS users CASCADE;
 CREATE TABLE IF NOT EXISTS users (
-    id uid PRIMARY KEY,
+    id uuid PRIMARY KEY,
     name varchar(255),
     email varchar(255),
     gender varchar(1),
@@ -9,8 +9,10 @@ CREATE TABLE IF NOT EXISTS users (
     registered_at timestamp,
     verified boolean DEFAULT 'f',
     notification boolean DEFAULT 'f',
-    countrys text[]
+    countries text[]
 );
+
+CREATE UNIQUE INDEX ON users (email);
 
 -- Travel Items - main table with country information
 DROP TABLE IF EXISTS travel_information CASCADE;
