@@ -18,6 +18,7 @@ import org.json.JSONObject;
 import org.pac4j.core.authorization.RequireAnyRoleAuthorizer;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.http.HttpActionAdapter;
 import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.core.profile.UserProfile;
@@ -41,6 +42,8 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 
 import auth.AuthFactory;
+import auth.MySparkWebContext;
+import auth.MyUserProfile;
 
 import com.mashape.unirest.http.JsonNode;
 
@@ -52,10 +55,25 @@ import io.jsonwebtoken.impl.crypto.MacProvider;
 
 public class Main {
 	
-	private static UserProfile getUserProfile(final Request request, final Response response) {
-		final SparkWebContext context = new SparkWebContext(request, response);
-		final ProfileManager manager = new ProfileManager(context);
-		return manager.get(true);
+	private static UserProfile getUserProfile(final Request request, final Response response, final SessionStore sessionStore) {
+		final MySparkWebContext context = new MySparkWebContext(request, response, sessionStore);
+		
+    	Gson gson = new Gson();
+    	AuthRequest loginParams = gson.fromJson(context.getRequestBody(), AuthRequest.class);
+    	boolean existsUser = false;
+    	/* need code here to look up user in db */
+    	if(existsUser)
+    	{
+    		final ProfileManager manager = new ProfileManager(context);
+    		return manager.get(true);
+    	}else
+    	{
+    		Map<String, Object> attributes = new HashMap<String, Object>();
+    		attributes.put("attribute", "true");
+    		MyUserProfile myProfile = new MyUserProfile(loginParams.username, attributes);	
+    		return myProfile;
+    	}
+
 	}
 	
 	private final static String JWT_SALT = "12341234123412341234123412341234";
@@ -74,24 +92,7 @@ public class Main {
                
         // JWT user auth setup
         final Config config = new AuthFactory(JWT_SALT).build();
-        
-        // convert JSON to request params
-        before("/login/", (req, res) -> {
-        	System.out.println(req.requestMethod());
-        	if(req.requestMethod().equals("POST")) {
-	        	System.out.println("BEFORE FILTER 1");
-	        	Gson gson = new Gson();
-	        	AuthRequest loginParams = gson.fromJson(req.body(), AuthRequest.class);
-	        	System.out.println(req.body());
-	        	System.out.println("Still here");
-	        	//req.params().put("username", loginParams.username);
-	        	//req.params().put("password", loginParams.password);
-	        	System.out.println(req.params());
-	        	new RequiresAuthenticationFilter(config, "DirectFormClient");
-        	}
-        });
-        
-        before("/login/", new RequiresAuthenticationFilter(config, "DirectFormClient"));
+
         before("/testauth", new RequiresAuthenticationFilter(config, "HeaderClient"));
         
         /**
@@ -111,8 +112,9 @@ public class Main {
          */
         //accept basic auth info in HTTPS header, return token
         post("/login/", (req, res) -> {      
-        	
-        	final UserProfile profile = getUserProfile(req, res);
+        	System.out.println("Session: " + config.getSessionStore());
+        	final UserProfile profile = getUserProfile(req, res, config.getSessionStore());
+        	System.out.println("Profile: " + profile);
     		JwtGenerator generator = new JwtGenerator(JWT_SALT);
     		String token = "";
     		if (profile != null) {
