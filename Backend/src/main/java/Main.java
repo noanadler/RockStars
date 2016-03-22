@@ -66,12 +66,15 @@ public class Main {
     	{
     		final ProfileManager manager = new ProfileManager(context);
     		return manager.get(true);
-    	}else
+    	}else if((loginParams.username).equals(loginParams.password))
     	{
     		Map<String, Object> attributes = new HashMap<String, Object>();
     		attributes.put("attribute", "true");
     		MyUserProfile myProfile = new MyUserProfile(loginParams.username, attributes);	
     		return myProfile;
+    	}else
+    	{
+    		return null;
     	}
 
 	}
@@ -119,16 +122,21 @@ public class Main {
     		String token = "";
     		if (profile != null) {
     			token = generator.generate(profile);
+        		final Map map = new HashMap();
+        		map.put("token", token);
+        		
+        		Gson gson = new Gson();
+    			String json = gson.toJson(map); 
+    			
+    			res.status(200);
+    			res.type("application/json");
+            	return json;
+    		}else
+    		{
+    			res.status(401);
+    			res.type("application/json");
+            	return "Login error";
     		}
-    		final Map map = new HashMap();
-    		map.put("token", token);
-    		
-    		Gson gson = new Gson();
-			String json = gson.toJson(map); 
-			
-			res.status(200);
-			res.type("application/json");
-        	return json;
     		
         });
         
