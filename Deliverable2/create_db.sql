@@ -5,7 +5,9 @@ CREATE TABLE IF NOT EXISTS users (
     name varchar(255),
     email varchar(255),
     gender varchar(255),
-    birthdate timestamp
+    birthdate timestamp,
+    registered_at timestamp,
+    countrys text[]
 );
 
 -- Travel Items - main table with country information
@@ -62,4 +64,12 @@ CREATE TABLE IF NOT EXISTS packed_items (
     item_id varchar(255),
     FOREIGN KEY ( user_id ) REFERENCES users (id),
     FOREIGN KEY ( item_id ) REFERENCES packing_list_items (name)
+);
+
+-- Country Lists
+DROP TABLE IF EXISTS country_lists;
+CREATE TABLE IF NOT EXISTS country_lists (
+    country text PRIMARY KEY,
+    emails text[],
+    FOREIGN KEY ( country ) REFERENCES travel_information (country)
 );
