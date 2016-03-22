@@ -76,21 +76,43 @@ public class Main {
         final Config config = new AuthFactory(JWT_SALT).build();
         
         // convert JSON to request params
-        before("/login", (req, res) -> {
-        	Gson gson = new Gson();
-        	AuthRequest loginParams = gson.fromJson(req.body(), AuthRequest.class);
-        	req.params().put("username", loginParams.username);
-        	req.params().put("password", loginParams.password);
-        	System.out.println(req.params());
+        before("/login/", (req, res) -> {
+        	System.out.println(req.requestMethod());
+        	if(req.requestMethod().equals("POST")) {
+	        	System.out.println("BEFORE FILTER 1");
+	        	Gson gson = new Gson();
+	        	AuthRequest loginParams = gson.fromJson(req.body(), AuthRequest.class);
+	        	System.out.println(req.body());
+	        	System.out.println("Still here");
+	        	//req.params().put("username", loginParams.username);
+	        	//req.params().put("password", loginParams.password);
+	        	System.out.println(req.params());
+	        	new RequiresAuthenticationFilter(config, "DirectFormClient");
+        	}
         });
-        before("/login", new RequiresAuthenticationFilter(config, "DirectFormClient"));
+        
+        before("/login/", new RequiresAuthenticationFilter(config, "DirectFormClient"));
         before("/testauth", new RequiresAuthenticationFilter(config, "HeaderClient"));
         
+        /**
+         * Sign up a user
+         */
+        post("/signup", (req, res) -> {
+        	// store user info into database
+        	
+        	// pass to authenticator to get web token
+        	
+        	// return token
+        	return "";
+        });
+        
+        /**
+         * Login a user
+         */
         //accept basic auth info in HTTPS header, return token
-        post("/login/", (req, res) -> {        	
+        post("/login/", (req, res) -> {      
+        	
         	final UserProfile profile = getUserProfile(req, res);
-        	System.out.println(req.body());
-        	System.out.println(profile);
     		JwtGenerator generator = new JwtGenerator(JWT_SALT);
     		String token = "";
     		if (profile != null) {

@@ -21,6 +21,7 @@ module.exports = function(environment) {
   };
 
   if (environment === 'development') {
+    ENV.APP.apiUrl = 'http://0.0.0.0:4567'
     // ENV.APP.LOG_RESOLVER = true;
     // ENV.APP.LOG_ACTIVE_GENERATION = true;
     // ENV.APP.LOG_TRANSITIONS = true;
