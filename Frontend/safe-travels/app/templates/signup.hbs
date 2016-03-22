@@ -1,0 +1,41 @@
+  <div class="row">
+    <div class="col-xs-12">
+      <h1 class="page-header">Register</h1>
+    </div>
+  </div>
+  <div class="row">
+  	<div class="col-md-6">
+      <form class="form-horizontal" {{action 'signup' on='submit'}}>
+        <fieldset>
+          <div class="control-group">
+            <label class="control-label" for="email">Email</label>
+            <div class="controls">
+              {{input id='email' value=email class="form-control input-lg" type='email'}}
+              <p class="help-block">Please provide your email</p>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="password">Password</label>
+            <div class="controls">
+              {{input id='password' value=password class="form-control input-lg" type='password'}}
+              <p class="help-block">Password should be at least 6 characters</p>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <!-- Button -->
+            <div class="controls">
+              <button class="btn btn-success">Register</button>
+            </div>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <p>Already signed up? {{#link-to 'login'}}Login in{{/link-to}}</p>
+    </div>
+  </div>

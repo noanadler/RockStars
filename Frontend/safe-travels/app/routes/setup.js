@@ -1,7 +1,8 @@
 import Ember from 'ember';
 import ENV from 'safe-travels/config/environment';
+import AuthenticatedRouteMixin from 'ember-simple-auth/mixins/authenticated-route-mixin';
 
-export default Ember.Route.extend({
+export default Ember.Route.extend(AuthenticatedRouteMixin, {
   trip: Ember.inject.service('trip'),
   model() {
     return Ember.RSVP.hash({

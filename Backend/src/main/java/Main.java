@@ -66,11 +66,11 @@ public class Main {
     	{
     		final ProfileManager manager = new ProfileManager(context);
     		return manager.get(true);
-    	}else if((loginParams.username).equals(loginParams.password))
+    	}else if((loginParams.email).equals(loginParams.password))
     	{
     		Map<String, Object> attributes = new HashMap<String, Object>();
     		attributes.put("attribute", "true");
-    		MyUserProfile myProfile = new MyUserProfile(loginParams.username, attributes);	
+    		MyUserProfile myProfile = new MyUserProfile(loginParams.email, attributes);	
     		return myProfile;
     	}else
     	{
@@ -206,7 +206,7 @@ public class Main {
 }
 
 class AuthRequest {
-	public String username;
+	public String email;
 	public String password;
 	AuthRequest() {}
 }

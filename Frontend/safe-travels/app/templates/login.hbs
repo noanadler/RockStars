@@ -1,7 +1,40 @@
-<form {{action 'authenticate' on='submit'}}>
-  <label for="identification">Login</label>
-  {{input id='identification' placeholder='Enter Login' value=identification}}
-  <label for="password">Password</label>
-  {{input id='password' placeholder='Enter Password' type='password' value=password}}
-  <button type="submit">Login</button>
-</form>
+  <div class="row">
+    <div class="col-xs-12">
+      <h1 class="page-header">Login</h1>
+    </div>
+  </div>
+  <div class="row">
+  	<div class="col-md-6">
+      <form class="form-horizontal"  {{action 'authenticate' on='submit'}}>
+        <fieldset>
+          <div class="control-group">
+            <label class="control-label" for="username">Email</label>
+            <div class="controls">
+              {{input id='identification' placeholder='Enter Login' value=identification class="form-control input-lg" type='text'}}
+              <p class="help-block">Enter your email</p>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="password">Password</label>
+            <div class="controls">
+              {{input id='password' placeholder='Enter Password' type='password' value=password class="form-control input-lg" type='text'}}
+              <p class="help-block">Enter your password</p>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <!-- Button -->
+            <div class="controls">
+              <button class="btn btn-success">Login</button>
+            </div>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <p>Haven't signed up? {{#link-to 'signup'}}Sign up{{/link-to}}</p>
+    </div>
+  </div>

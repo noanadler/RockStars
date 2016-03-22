@@ -11,7 +11,13 @@
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="#">Help</a></li>
+        <li>
+          {{#if session.isAuthenticated}}
+            <a {{action 'invalidateSession'}}>Logout</a>
+          {{else}}
+            {{#link-to 'login'}}Login{{/link-to}}
+          {{/if}}
+        </li>
       </ul>
     </div>
   </div>
