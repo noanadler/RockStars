@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     id uuid PRIMARY KEY,
     name varchar(255),
     email varchar(255),
+    password varchar(255),
     gender varchar(1),
     birthdate timestamp,
     registered_at timestamp,
