@@ -81,6 +81,7 @@ public class Main {
         	AuthRequest loginParams = gson.fromJson(req.body(), AuthRequest.class);
         	req.params().put("username", loginParams.username);
         	req.params().put("password", loginParams.password);
+        	System.out.println(req.params());
         });
         before("/login", new RequiresAuthenticationFilter(config, "DirectFormClient"));
         before("/testauth", new RequiresAuthenticationFilter(config, "HeaderClient"));
