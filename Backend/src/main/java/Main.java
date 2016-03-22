@@ -75,7 +75,13 @@ public class Main {
         // JWT user auth setup
         final Config config = new AuthFactory(JWT_SALT).build();
         
-        
+        // convert JSON to request params
+        before("/login", (req, res) -> {
+        	Gson gson = new Gson();
+        	AuthRequest loginParams = gson.fromJson(req.body(), AuthRequest.class);
+        	req.params().put("username", loginParams.username);
+        	req.params().put("password", loginParams.password);
+        });
         before("/login", new RequiresAuthenticationFilter(config, "DirectFormClient"));
         before("/testauth", new RequiresAuthenticationFilter(config, "HeaderClient"));
         
@@ -164,4 +170,10 @@ public class Main {
         }
         return 4567; //return default port if heroku-port isn't set (i.e. on localhost)
     }
+}
+
+class AuthRequest {
+	public String username;
+	public String password;
+	AuthRequest() {}
 }
