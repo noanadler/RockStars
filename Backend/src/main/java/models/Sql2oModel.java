@@ -3,6 +3,8 @@ package models;
 import java.util.List;
 import java.util.UUID;
 
+import javax.print.attribute.standard.PrinterLocation;
+
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 
@@ -104,4 +106,15 @@ public class Sql2oModel implements Model {
 	public void updateUser(User user){
 		//TODO
 	}
+	
+	@Override
+	public List<Alert> getCountryAlerts(Country country) {
+        try (Connection conn = sql2o.open()) {
+            List<Alert> alerts = conn.createQuery("select * from alerts where name in ('" + String.join(",", country.alert_names).replace(",", "','") + "')".replace(" '", "'"))
+            		
+                    .executeAndFetch(Alert.class);
+            return alerts;
+        }
+	}
+
 }
