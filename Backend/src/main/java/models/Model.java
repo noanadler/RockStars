@@ -17,4 +17,5 @@ public interface Model {
 	void setNotificationsStatus(UUID uId, boolean enable);
 	void updateSubscribers(String country, List<String> emails);
 	void updateUser(User user);
+	List<Alert> getCountryAlerts(Country country);
 }
