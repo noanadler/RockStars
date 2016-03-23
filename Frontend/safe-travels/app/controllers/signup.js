@@ -7,11 +7,16 @@ export default Ember.Controller.extend({
   actions: {
     signup: function() {
       var credentials = this.getProperties('email', 'password'),
-        authenticator = 'authenticator:jwt';
-        
-      Ember.$.post(ENV.APP.apiUrl + '/signup', credentials).then(function() {
-        this.get('session').authenticate(authenticator, { identification: credentials.email, password: credentials.password });
-      });
+        authenticator = 'authenticator:jwt',
+        user = this.get('user'),
+        session = this.get('session');
+
+      //Ember.$.post(ENV.APP.apiUrl + '/signup', credentials).then(function() {
+        session.authenticate(authenticator, { identification: credentials.email, password: credentials.password }).then(function() {
+          //authenticated
+          session.set('data.user', credentials.email );
+        });
+      //});
     }
   }
 });

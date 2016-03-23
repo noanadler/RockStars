@@ -2,13 +2,15 @@ import Ember from 'ember';
 import ENV from 'safe-travels/config/environment';
 
 export default Ember.Route.extend({
-  trip: Ember.inject.service('trip'),
+  session: Ember.inject.service('session'),
   model() {
     return Ember.RSVP.hash({
-      countries: this.get('trip.countries').map(function(trip) {
-        Ember.$.get(ENV.APP.apiUrl + '/country/' + trip.get('id'));
+      countries: this.get('session.data.user.countries').map(function(country) {
+        Ember.$.get(ENV.APP.apiUrl + '/country/' + country.get('id'));
       }),
-      trip: this.get('trip')
+      user: Ember.$.get(ENV.APP.apiUrl + '/user').then(function(response) {
+
+      }
     })
   }
 });

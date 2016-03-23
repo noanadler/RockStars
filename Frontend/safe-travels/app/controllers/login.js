@@ -3,14 +3,17 @@ import ENV from 'safe-travels/config/environment';
 
 export default Ember.Controller.extend({
   session: Ember.inject.service(),
+  user: Ember.inject.service('user'),
 
   actions: {
     authenticate: function() {
       var credentials = this.getProperties('identification', 'password'),
         authenticator = 'authenticator:jwt',
-        controller = this;
-      this.get('session').authenticate(authenticator, credentials).then(function(token) {
-        controller.get('session').authorize('authorizer:token', (header, token) => {
+        user = this.get('user'),
+        session = this.get('session');
+      session.authenticate(authenticator, credentials).then(function(token) {
+        session.set('data.user', credentials.identification );
+        /*session.authorize('authorizer:token', (header, token) => {
           var headers = {}
           headers[header] = token;
 
@@ -18,7 +21,7 @@ export default Ember.Controller.extend({
             url: ENV.APP.apiUrl + '/testauth',
             headers: headers
           })
-        });
+        });*/
       });
     }
   }
