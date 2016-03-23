@@ -29,8 +29,7 @@ public class AuthFactory implements ConfigFactory {
 
 	@Override
 	public Config build() {
-		MyProfileCreator profileCreator = new MyProfileCreator();
-		final HeaderClient headerClient = new HeaderClient(new JwtAuthenticator(salt), profileCreator);
+		final HeaderClient headerClient = new HeaderClient(new MyJwtAuthenticator(salt, salt));
         headerClient.setHeaderName("Authorization");
         headerClient.setPrefixHeader("Bearer ");
         

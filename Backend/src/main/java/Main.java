@@ -15,6 +15,7 @@ import spark.Response;
 
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.jwt.profile.JwtGenerator;
@@ -58,9 +59,9 @@ public class Main {
     		return manager.get(true);
     	}else if((loginParams.email).equals(loginParams.password))
     	{
-    		Map<String, Object> attributes = new HashMap<String, Object>();
-    		attributes.put("attribute", "true");
-    		MyUserProfile myProfile = new MyUserProfile(loginParams.email, attributes);	
+    		UserProfile myProfile = new UserProfile();	
+    		myProfile.setId(loginParams.email);
+	        myProfile.addAttribute("email", loginParams.email);
     		return myProfile;
     	}else
     	{
