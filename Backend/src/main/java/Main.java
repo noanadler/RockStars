@@ -10,58 +10,48 @@ import java.util.Map;
 import models.Country;
 import models.Model;
 import models.Sql2oModel;
-import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
 
-import org.json.JSONObject;
-import org.pac4j.core.authorization.RequireAnyRoleAuthorizer;
-import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.session.SessionStore;
-import org.pac4j.core.http.HttpActionAdapter;
 import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.core.profile.UserProfile;
-import org.pac4j.http.client.direct.DirectBasicAuthClient;
-import org.pac4j.http.client.direct.ParameterClient;
-import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
-import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
 import org.pac4j.jwt.profile.JwtGenerator;
-import org.pac4j.sparkjava.DefaultHttpActionAdapter;
-import org.pac4j.sparkjava.RequiresAuthenticationFilter;
-import org.pac4j.sparkjava.SparkWebContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sql2o.Sql2o;
-
 import org.sql2o.quirks.PostgresQuirks;
 import org.sql2o.quirks.Quirks;
 
 import com.google.gson.Gson;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.Unirest;
 
 import auth.AuthFactory;
 import auth.MySparkWebContext;
 import auth.MyUserProfile;
-
-import com.mashape.unirest.http.JsonNode;
+import auth.XHRRequiresAuthenticationFilter;
 
 import data.ArrayConverter;
 import data.HerokuDataSource;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.impl.crypto.MacProvider;
 
 public class Main {
+	
+	private final static String JWT_SALT = "12341234123412341234123412341234";
 	
 	private static UserProfile getUserProfile(final Request request, final Response response, final SessionStore sessionStore) {
 		final MySparkWebContext context = new MySparkWebContext(request, response, sessionStore);
 		
     	Gson gson = new Gson();
     	AuthRequest loginParams = gson.fromJson(context.getRequestBody(), AuthRequest.class);
+    	byte[] hashedPassword = AuthFactory.hashPassword(loginParams.password.toCharArray(), JWT_SALT.getBytes());
     	boolean existsUser = false;
+    	
     	/* need code here to look up user in db */
+    	String retrievedUsername = "xyz";
+    	String retrievedPassword = "xyz";
+    	byte[] hashedActual = AuthFactory.hashPassword(retrievedPassword.toCharArray(), JWT_SALT.getBytes());
+    	
+    	boolean blnResult = Arrays.equals(hashedPassword,hashedActual);
+        System.out.println("Does supplied password match hashed db value ? : " + blnResult);
+    	
     	if(existsUser)
     	{
     		final ProfileManager manager = new ProfileManager(context);
@@ -76,10 +66,7 @@ public class Main {
     	{
     		return null;
     	}
-
 	}
-	
-	private final static String JWT_SALT = "12341234123412341234123412341234";
     
     public static void main(String[] args) {
 	    try {
@@ -96,7 +83,11 @@ public class Main {
         // JWT user auth setup
         final Config config = new AuthFactory(JWT_SALT).build();
 
-        before("/testauth", new RequiresAuthenticationFilter(config, "HeaderClient"));
+        before((request, response) -> {
+        	response.header("Access-Control-Allow-Origin", "*");
+        });  
+        
+        before("/testauth", new XHRRequiresAuthenticationFilter(config, "HeaderClient"));
         
         /**
          * Sign up a user
@@ -189,11 +180,7 @@ public class Main {
             }
 
             return "OK";
-        });
-
-        before((request, response) -> {
-        	response.header("Access-Control-Allow-Origin", "*");
-        });        
+        });      
     }
     
     static int getHerokuAssignedPort() {
