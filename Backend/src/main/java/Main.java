@@ -34,13 +34,24 @@ import data.HerokuDataSource;
 
 public class Main {
 	
+	private final static String JWT_SALT = "12341234123412341234123412341234";
+	
 	private static UserProfile getUserProfile(final Request request, final Response response, final SessionStore sessionStore) {
 		final MySparkWebContext context = new MySparkWebContext(request, response, sessionStore);
 		
     	Gson gson = new Gson();
     	AuthRequest loginParams = gson.fromJson(context.getRequestBody(), AuthRequest.class);
+    	byte[] hashedPassword = AuthFactory.hashPassword(loginParams.password.toCharArray(), JWT_SALT.getBytes());
     	boolean existsUser = false;
+    	
     	/* need code here to look up user in db */
+    	String retrievedUsername = "xyz";
+    	String retrievedPassword = "xyz";
+    	byte[] hashedActual = AuthFactory.hashPassword(retrievedPassword.toCharArray(), JWT_SALT.getBytes());
+    	
+    	boolean blnResult = Arrays.equals(hashedPassword,hashedActual);
+        System.out.println("Does supplied password match hashed db value ? : " + blnResult);
+    	
     	if(existsUser)
     	{
     		final ProfileManager manager = new ProfileManager(context);
@@ -56,8 +67,6 @@ public class Main {
     		return null;
     	}
 	}
-	
-	private final static String JWT_SALT = "12341234123412341234123412341234";
     
     public static void main(String[] args) {
 	    try {

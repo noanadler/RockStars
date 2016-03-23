@@ -1,5 +1,12 @@
 package auth;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.config.ConfigFactory;
@@ -22,23 +29,30 @@ public class AuthFactory implements ConfigFactory {
 
 	@Override
 	public Config build() {
-        
-		final ParameterClient parameterClient = new ParameterClient("token", new JwtAuthenticator(salt));
-		final DirectFormClient formClient = new DirectFormClient(new SimpleTestUsernamePasswordAuthenticator());
-		formClient.setUsernameParameter("username");
-		formClient.setPasswordParameter("password");
-		final HeaderClient headerClient = new HeaderClient(new JwtAuthenticator(salt));
+		MyProfileCreator profileCreator = new MyProfileCreator();
+		final HeaderClient headerClient = new HeaderClient(new JwtAuthenticator(salt), profileCreator);
         headerClient.setHeaderName("Authorization");
         headerClient.setPrefixHeader("Bearer ");
         
-        parameterClient.setSupportGetRequest(true);
-        
-        Clients clients = new Clients(parameterClient, formClient, headerClient);
+        Clients clients = new Clients(headerClient);
         
         final Config config = new Config(clients);
         config.setHttpActionAdapter(new DefaultHttpActionAdapter());
         
         return config;
 	}
+	
+	public static byte[] hashPassword( final char[] password, final byte[] salt ) {		 
+	       try {
+	           SecretKeyFactory skf = SecretKeyFactory.getInstance( "PBKDF2WithHmacSHA512" );
+	           PBEKeySpec spec = new PBEKeySpec( password, salt, 1000, 16 );
+	           SecretKey key = skf.generateSecret( spec );
+	           byte[] res = key.getEncoded( );
+	           return res;
+	 
+	       } catch( NoSuchAlgorithmException | InvalidKeySpecException e ) {
+	           throw new RuntimeException( e );
+	       }
+	   }
 
 }
