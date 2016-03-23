@@ -1,21 +1,21 @@
 <div class="row">
   <div class="col-xs-12">
-    <h1 class="page-header">Trip Information <small>{{to-sentence model.user.countryNames}}</small></h1>
+    <h1 class="page-header">Trip Information <small>{{to-sentence model.countryNames}}</small></h1>
    </div>
 </div>
 <div class="row placeholders">
    <div class="col-xs-6 col-sm-3 placeholder">
-     <a data-toggle="modal" data-target="#myModal">
+     <a data-toggle="modal" data-target="#listModal">
        <i class="fa fa-suitcase" style='font-size: 100px;'></i>
        <h4>Packing Checklist</h4>
-       <span class="text-muted">View/Edit your health packing list</span>
+       <span class="text-muted">View/Edit your health packing list ({{model.packingListItems.length}})</span>
      </a>
    </div>
    <div class="col-xs-6 col-sm-3 placeholder">
-     <a data-toggle="modal" data-target="#myModal">
+     <a data-toggle="modal" data-target="#vaccineModal">
        <i class="fa fa-user-md" style='font-size: 100px;'></i>
        <h4>Vaccine Checklist</h4>
-       <span class="text-muted">View/Edit your vaccine list</span>
+       <span class="text-muted">View/Edit your vaccine list ({{model.vaccines.length}})</span>
      </a>
    </div>
    <div class="col-xs-6 col-sm-3 placeholder">
@@ -26,10 +26,117 @@
      </a>
    </div>
    <div class="col-xs-6 col-sm-3 placeholder">
-<a data-toggle="modal" data-target="#myModalProfile">
+<a data-toggle="modal" data-target="#modalProfile">
    <i class="fa fa-user" style='font-size: 100px;'></i>
        <h4>Profile</h4>
        <span class="text-muted">View/Edit your profile</span>
      </a>
    </div>
  </div>
+
+ <!-- Modal -->
+ <div class="modal fade" id="listModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+   <div class="modal-dialog" role="document">
+     <div class="modal-content">
+       <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+         <h4 class="modal-title" id="myModalLabel">Checklist</h4>
+       </div>
+       <div class="modal-body">
+         <div class="list-group">
+           {{#each model.packingListItems as |item|}}
+            <a href="#" class="list-group-item active">{{item.name}}</a>
+           {{/each}}
+         </div>
+       </div>
+       <div class="modal-footer">
+         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+         <button type="button" class="btn btn-primary">Save changes</button>
+       </div>
+     </div>
+   </div>
+ </div>
+
+ <div class="modal fade" id="vaccineModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+   <div class="modal-dialog" role="document">
+     <div class="modal-content">
+       <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+         <h4 class="modal-title" id="myModalLabel">Checklist</h4>
+       </div>
+       <div class="modal-body">
+         <div class="list-group">
+           {{#each model.vaccines as |item|}}
+            <a href="#" class="list-group-item active">{{item.name}}</a>
+           {{/each}}
+         </div>
+       </div>
+       <div class="modal-footer">
+         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+         <button type="button" class="btn btn-primary">Save changes</button>
+       </div>
+     </div>
+   </div>
+ </div>
+
+ <!-- Modal -->
+<div class="modal fade" id="modalProfile" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">User Profile</h4>
+      </div>
+      <div class="modal-body">
+    <div class="form-group">
+      <label for="name">Name:</label>
+      {{input id='name' value=model.name class="form-control" type='text'}}
+      <label for="user"> Sex: </label>
+      <label class="radio-inline">
+        {{radio-button
+          value="M"
+          groupValue=model.gender
+          changed="genderChanged"}} Male
+      </label>
+      <label class="radio-inline">
+        {{radio-button
+          value="F"
+          groupValue=model.gender
+          changed="genderChanged"}} Female
+      </label>
+    </div>
+    <!--
+    <div class="form-radio">
+      <label for="user1"> If Female, are you currently: </label>
+      <label class="radio-inline">
+        <input type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1"> Pregnant
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2"> Breastfeeding
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option3"> None
+      </label>
+    </div>
+    <div class="form-group">
+      <label for="email">Email address:</label>
+      <input type="email" class="form-control" id="email">
+    </div>-->
+    <div class="form-group">
+      <label for="pwd">Password:</label>
+      <input type="password" class="form-control" id="pwd">
+    </div>
+
+    <div class="form-group">
+      <label for="pwd">Birthdate:</label>
+        {{bootstrap-datepicker placeholder="Select Your Birthdate" class="form-control" value=model.birthdate}}
+    </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

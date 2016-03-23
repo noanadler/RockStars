@@ -11,9 +11,9 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
           return Ember.Object.create({ id: country.country, text: country.full_name});
         });
       }),
-      user: Ember.$.get(ENV.APP.apiUrl + '/user').then(function(response) {
-        
-      }
+      user: Ember.$.get(ENV.APP.apiUrl + '/user').then(function(user) {
+        console.log(user)
+      })
     })
   },
   actions: {

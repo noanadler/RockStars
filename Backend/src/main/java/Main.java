@@ -1,5 +1,6 @@
 import static spark.Spark.*;
 
+
 import java.lang.reflect.Field;
 import java.security.Key;
 import java.util.Arrays;
@@ -7,11 +8,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 import models.Country;
 import models.Model;
 import models.Sql2oModel;
+import models.User;
 import spark.Request;
 import spark.Response;
+
 
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.session.SessionStore;
@@ -22,7 +26,9 @@ import org.sql2o.Sql2o;
 import org.sql2o.quirks.PostgresQuirks;
 import org.sql2o.quirks.Quirks;
 
+
 import com.google.gson.Gson;
+
 
 import auth.AuthFactory;
 import auth.MySparkWebContext;
@@ -129,6 +135,22 @@ public class Main {
             	return "Login error";
     		}
     		
+        });
+        
+        // NOTE: this is currently just stubbed so i can interact via the javascript app
+        get("/user", (req, res) -> {
+        	User user = new User();
+        	user.setCountries(new String[] { "canada", "mexico"});
+        	user.setNotifications(true);
+        	user.setGender("M");
+        	user.setName("John Gadbois");
+        	
+    		Gson gson = new Gson();
+			String json = gson.toJson(user); 
+			
+			res.status(200);
+			res.type("application/json");
+        	return json;        	
         });
         
         //this protected page is only visible with a valid JWT token
