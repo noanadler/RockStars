@@ -1,14 +1,30 @@
 import Ember from 'ember';
 import ENV from 'safe-travels/config/environment';
+import User from 'safe-travels/models/user';
 
 export default Ember.Route.extend({
-  trip: Ember.inject.service('trip'),
+  session: Ember.inject.service('session'),
   model() {
-    return Ember.RSVP.hash({
-      countries: this.get('trip.countries').map(function(trip) {
-        Ember.$.get(ENV.APP.apiUrl + '/country/' + trip.get('id'));
-      }),
-      trip: this.get('trip')
+    return Ember.$.get(ENV.APP.apiUrl + '/user').then(function(response) {
+      var user = User.create();
+
+      response.countries.forEach(function(country) {
+        Ember.$.get(ENV.APP.apiUrl + '/country/' + country).then(function(country) {
+          var country = Ember.Object.create(country)
+          country.set('items', country.get('items').map(function(i) {
+            return Ember.Object.create(i);
+          }));
+          country.set('vaccines', country.get('vaccines').map(function(i) {
+            return Ember.Object.create(i);
+          }));
+
+          user.get('countries').pushObject(Ember.Object.create(country));
+        });
+      });
+      delete response.countries
+      user.setProperties(response)
+
+      return user;
     })
   }
 });

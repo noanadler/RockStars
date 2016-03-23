@@ -12,20 +12,11 @@
       <h4>Select Countries</h4>
       {{select-2
          content=model.countries
-         value=model.trip.countries
+         value=model.user.countries
          multiple=true
          placeholder="Select your trip countries"
        }}
      </div>
-  </div>
-  <div class="row">
-    <div class="col-sm-1 col-xs-12">
-       <i class="fa fa-calendar" style='font-size: 100px; font-size:7vw'></i>
-    </div>
-    <div class="col-sm-11 col-xs-12">
-      <h4>Select Birthdate</h4>
-      {{bootstrap-datepicker placeholder="Select Your Birthdate" class="form-control" value=model.trip.birthdate}}
-    </div>
   </div>
   <div class='row'>
     <div class="col-xs-12">

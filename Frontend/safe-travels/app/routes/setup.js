@@ -3,7 +3,7 @@ import ENV from 'safe-travels/config/environment';
 import AuthenticatedRouteMixin from 'ember-simple-auth/mixins/authenticated-route-mixin';
 
 export default Ember.Route.extend(AuthenticatedRouteMixin, {
-  trip: Ember.inject.service('trip'),
+  session: Ember.inject.service('session'),
   model() {
     return Ember.RSVP.hash({
       countries: Ember.$.get(ENV.APP.apiUrl + '/countries').then(function(response) {
@@ -11,7 +11,9 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
           return Ember.Object.create({ id: country.country, text: country.full_name});
         });
       }),
-      trip: this.get('trip')
+      user: Ember.$.get(ENV.APP.apiUrl + '/user').then(function(user) {
+        console.log(user)
+      })
     })
   },
   actions: {

@@ -49,7 +49,11 @@ module.exports = function(environment) {
     serverTokenEndpoint: ENV.APP.apiUrl + '/login/',
     identificationField: 'email',
     routeAfterAuthentication: 'setup',
-    authorizer: 'authorizer:token'
+    authorizer: 'authorizer:token',
+    authenticationRoute: 'login'
+  }
+  ENV['ember-simple-auth'] = {
+    routeAfterAuthentication: 'setup'
   }
 
   return ENV;

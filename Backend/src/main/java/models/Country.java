@@ -7,10 +7,12 @@ public class Country {
 	String full_name;
 	String[] vaccine_names;
 	String[] packinglist_names;
+	String[] alert_names;
 	
 
 	List<Vaccine> vaccines;
 	List<PackingListItem> items;
+	List<Alert> alerts;
 
 	
 	public String getCountry() {
@@ -36,6 +38,12 @@ public class Country {
 	}
 	public void setItems(List<PackingListItem> items) {
 		this.items = items;
+	}
+	public List<Alert> getAlerts() {
+		return alerts;
+	}
+	public void setAlerts(List<Alert> alerts) {
+		this.alerts = alerts;
 	}
 
 }
