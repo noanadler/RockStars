@@ -52,7 +52,7 @@ public class Sql2oModel implements Model {
 	public List<PackingListItem> getCountryPackingListItems(Country country) {
         try (Connection conn = sql2o.open()) {
             List<PackingListItem> packingListItems = conn.createQuery("select * from packing_list_items where name in ('" + String.join(",", country.packinglist_names).replace(",", "','") + "')".replace(" '", "'"))
-            		//.addParameter("listitems", String.join(",", country.packinglist_names))
+            		//.addParameter("listtems", String.join(",", country.packinglist_names))
                     .executeAndFetch(PackingListItem.class);
             return packingListItems;
         }
@@ -61,7 +61,7 @@ public class Sql2oModel implements Model {
 	@Override
 	public User getUserByUid(UUID uId){
 		try (Connection conn = sql2o.open()) {
-			List<User> users = conn.createQuery("select * from users where uid = '" + uId + "'")  
+			List<User> users = conn.createQuery("select * from users where id = '" + uId + "'")  
 	                .executeAndFetch(User.class);
 			User user = users.get(0);
 			return user;
@@ -109,12 +109,24 @@ public class Sql2oModel implements Model {
 	@Override
 	public void setUserVerified(UUID uId){
 		//TODO
+		String updateSql = "update users set verified = TRUE where id = :uIdParam";
+        try (Connection conn = sql2o.open()) {
+         	 conn.createQuery(updateSql)
+         			.addParameter("uidParam", uId)
+  	                .executeUpdate();
+         }
 	}
 	
 	@Override
 	public boolean isSubscribedToNotifications(UUID uId){
-		return false;
 		//TODO
+        try (Connection conn = sql2o.open()) {
+        	List<User> users = conn.createQuery("select notifications from users where id=:uIdParam")
+       			 	.addParameter("uIdParam", uId)
+	                .executeAndFetch(User.class);
+        	 User user = users.get(0);
+			 return user.notification;
+       }
 	}
 	
 	@Override
@@ -126,6 +138,13 @@ public class Sql2oModel implements Model {
 	@Override
 	public void setNotificationsStatus(UUID uId, boolean enable){
 		//TODO
+		String updateSql = "update users set notifications = :enableParam where id = :uIdParam";
+        try (Connection conn = sql2o.open()) {
+         	 conn.createQuery(updateSql)
+         			.addParameter("uidParam", uId)
+         			.addParameter("enableParam", enable)
+  	                .executeUpdate();
+         }
 	}
 	
 	@Override
@@ -136,6 +155,21 @@ public class Sql2oModel implements Model {
 	@Override
 	public void updateUser(User user){
 		//TODO
+		String updateSql = 
+				"update users" +
+				"SET name=:nameParam, email=:emailParam, password=:passwordParam, gender=:genderParam, countries=:countriesParam)" +
+				"where id =:uidParam";
+			
+			try (Connection conn = sql2o.open()) {
+			    conn.createQuery(updateSql)
+			    	.addParameter("uidParam", user.id)	
+			    	.addParameter("nameParam", user.name)
+				    .addParameter("emailParam", user.email)
+				    .addParameter("passwordParam", user.password)
+				    .addParameter("genderParam", user.gender)
+				    .addParameter("countriesParam", user.countries)
+				    .executeUpdate();
+			}
 	}
 	
 	@Override
