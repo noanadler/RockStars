@@ -60,19 +60,50 @@ public class Sql2oModel implements Model {
 	
 	@Override
 	public User getUserByUid(UUID uId){
-		return null;
-		//TODO
+		try (Connection conn = sql2o.open()) {
+			List<User> users = conn.createQuery("select * from users where uid = '" + uId + "'")  
+	                .executeAndFetch(User.class);
+			User user = users.get(0);
+			return user;
+		}
 	}
 	
 	@Override
 	public User getUserByEmail(String email){
-		return null;
-		//TODO
+		try (Connection conn = sql2o.open()) {
+			List<User> users = conn.createQuery("select * from users where email = '" + email + "'")  
+	                .executeAndFetch(User.class);
+			if(users.size() > 0)
+			{
+				User user = users.get(0);
+				return user;
+			}else
+			{
+				return null;
+			}
+			
+		}
 	}
 	
 	@Override
-	public void insertUser(UUID uid, String name, String email, String gender, Country[] countries){
+	public UUID insertUser(String name, String email, String password, String gender, String[] countries){
 		//TODO
+		String insertSql = 
+				"insert into users(id, name, email, password, gender, countries) " +
+				"values (:uidParam, :nameParam, :emailParam, :passwordParam, :genderParam, :countriesParam)";
+			UUID uuid = UUID.randomUUID();
+			try (Connection conn = sql2o.open()) {
+			    conn.createQuery(insertSql)
+			    	.addParameter("uidParam", uuid)
+			    	.addParameter("nameParam", name)
+				    .addParameter("emailParam", email)
+				    .addParameter("passwordParam", password)
+				    .addParameter("genderParam", gender)
+				    .addParameter("countriesParam", countries)
+				    .executeUpdate();
+			    return uuid;
+			}
+			
 	}
 	
 	@Override

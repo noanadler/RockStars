@@ -19,13 +19,12 @@ public class Registrator {
     public Registrator(){
     	_model = new Sql2oModel(new Sql2o(new HerokuDataSource()));
     }
-    public void beginRegistration(String userEmail, String userName, String userGender, StringBuilder errorReporter){
+    public void beginRegistration(String userEmail, String userPassword, String userName, String userGender, StringBuilder errorReporter){
         if(emailExists(userEmail)){
             errorReporter.append(ERR_USER_EXISTS);
             return;
         }
-        UUID uId = UUID.randomUUID();
-        addUser(uId, userEmail,userName, userGender);
+        UUID uId = addUser(userName, userPassword, userEmail, userGender, new String[0]);
         EmailGenerator gen = new EmailGenerator();
         gen.sendVerificationEmail(userEmail, uId);
     }
@@ -44,8 +43,8 @@ public class Registrator {
     public boolean emailExists(String userEmail){
     	return _model.getUserByEmail(userEmail) == null;
     }
-    public void addUser(UUID uId, String userName, String userEmail, String userGender){
-        _model.insertUser(uId, userName, userEmail, userGender, new Country[0]);
+    public UUID addUser(String userName, String userPassword, String userEmail, String userGender, String[] countries){
+        return _model.insertUser(userName, userEmail, userPassword, userGender, countries);
     }
     public void updateNotificationCountries(String userEmail, String[] selectedCountries){
     	List<String> toAdd = new ArrayList<>();

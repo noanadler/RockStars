@@ -2,6 +2,7 @@ package auth;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -40,18 +41,4 @@ public class AuthFactory implements ConfigFactory {
         
         return config;
 	}
-	
-	public static byte[] hashPassword( final char[] password, final byte[] salt ) {		 
-	       try {
-	           SecretKeyFactory skf = SecretKeyFactory.getInstance( "PBKDF2WithHmacSHA512" );
-	           PBEKeySpec spec = new PBEKeySpec( password, salt, 1000, 16 );
-	           SecretKey key = skf.generateSecret( spec );
-	           byte[] res = key.getEncoded( );
-	           return res;
-	 
-	       } catch( NoSuchAlgorithmException | InvalidKeySpecException e ) {
-	           throw new RuntimeException( e );
-	       }
-	   }
-
 }

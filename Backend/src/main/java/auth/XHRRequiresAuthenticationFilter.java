@@ -55,14 +55,13 @@ public class XHRRequiresAuthenticationFilter extends RequiresAuthenticationFilte
 			        try {
 				        final JWT jwt = JWTParser.parse(tokenString);
 			            final JWEObject jweObject = (JWEObject) jwt;
-			            String encryptionSecret = "12341234123412341234123412341234";
-			            CommonHelper.assertNotBlank("encryptionSecret", encryptionSecret);
+			            CommonHelper.assertNotBlank("encryptionSecret", AuthenticationHelpers.JWT_SALT);
 
-		                jweObject.decrypt(new DirectDecrypter(encryptionSecret.getBytes("UTF-8")));
+		                jweObject.decrypt(new DirectDecrypter(AuthenticationHelpers.JWT_SALT.getBytes("UTF-8")));
 		                // Extract payload
 		                SignedJWT signedJWT = jweObject.getPayload().toSignedJWT();
 		                JWTClaimsSet claimSet = signedJWT.getJWTClaimsSet();
-		                
+		                System.out.println(claimSet);
 				        String subject = claimSet.getSubject();
 				        //if subject is  a valid user
 				        profile = new UserProfile();

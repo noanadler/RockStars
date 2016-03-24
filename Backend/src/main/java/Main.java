@@ -32,48 +32,16 @@ import com.google.gson.Gson;
 
 
 import auth.AuthFactory;
+import auth.AuthRequest;
+import auth.AuthenticationHelpers;
 import auth.MySparkWebContext;
-import auth.MyUserProfile;
 import auth.XHRRequiresAuthenticationFilter;
 
 import data.ArrayConverter;
 import data.HerokuDataSource;
 
 public class Main {
-	
-	private final static String JWT_SALT = "12341234123412341234123412341234";
-	
-	private static UserProfile getUserProfile(final Request request, final Response response, final SessionStore sessionStore) {
-		final MySparkWebContext context = new MySparkWebContext(request, response, sessionStore);
-		
-    	Gson gson = new Gson();
-    	AuthRequest loginParams = gson.fromJson(context.getRequestBody(), AuthRequest.class);
-    	byte[] hashedPassword = AuthFactory.hashPassword(loginParams.password.toCharArray(), JWT_SALT.getBytes());
-    	boolean existsUser = false;
-    	
-    	/* need code here to look up user in db */
-    	String retrievedUsername = "xyz";
-    	String retrievedPassword = "xyz";
-    	byte[] hashedActual = AuthFactory.hashPassword(retrievedPassword.toCharArray(), JWT_SALT.getBytes());
-    	
-    	boolean blnResult = Arrays.equals(hashedPassword,hashedActual);
-        System.out.println("Does supplied password match hashed db value ? : " + blnResult);
-    	
-    	if(existsUser)
-    	{
-    		final ProfileManager manager = new ProfileManager(context);
-    		return manager.get(true);
-    	}else if((loginParams.email).equals(loginParams.password))
-    	{
-    		UserProfile myProfile = new UserProfile();	
-    		myProfile.setId(loginParams.email);
-	        myProfile.addAttribute("email", loginParams.email);
-    		return myProfile;
-    	}else
-    	{
-    		return null;
-    	}
-	}
+
     
     public static void main(String[] args) {
 	    try {
@@ -88,7 +56,7 @@ public class Main {
         Model model = new Sql2oModel(sql2o);
                
         // JWT user auth setup
-        final Config config = new AuthFactory(JWT_SALT).build();
+        final Config config = new AuthFactory(AuthenticationHelpers.JWT_SALT).build();
 
         before((request, response) -> {
         	response.header("Access-Control-Allow-Origin", "*");
@@ -100,42 +68,57 @@ public class Main {
          * Sign up a user
          */
         post("/signup", (req, res) -> {
+        	final MySparkWebContext context = new MySparkWebContext(req, res, config.getSessionStore());  		
+        	Gson gson = new Gson();
+        	AuthRequest loginParams = gson.fromJson(context.getRequestBody(), AuthRequest.class);
+        	//Ensure user has not already signed up
+        	if(model.getUserByEmail(loginParams.email) != null)
+        	{
+        		res.status(409);
+    			res.type("application/json");
+            	return "This email address is already registered";
+        	}
+        	//hash password
+        	String hashedPassword = AuthenticationHelpers.hashPassword(loginParams.password.toCharArray());
         	// store user info into database
-        	
+        	model.insertUser(loginParams.name, loginParams.email, hashedPassword, loginParams.gender, loginParams.countries);
         	// pass to authenticator to get web token
-        	
+        	String token = AuthenticationHelpers.getUserToken(AuthenticationHelpers.createUserProfile(loginParams));
         	// return token
-        	return "";
+        	res.status(200);
+			res.type("application/json");
+        	return token; 
         });
         
         /**
          * Login a user
          */
         //accept basic auth info in HTTPS header, return token
-        post("/login/", (req, res) -> {      
-        	System.out.println("Session: " + config.getSessionStore());
-        	final UserProfile profile = getUserProfile(req, res, config.getSessionStore());
-        	System.out.println("Profile: " + profile);
-    		JwtGenerator generator = new JwtGenerator(JWT_SALT);
-    		String token = "";
-    		if (profile != null) {
-    			token = generator.generate(profile);
-        		final Map map = new HashMap();
-        		map.put("token", token);
-        		
-        		Gson gson = new Gson();
-    			String json = gson.toJson(map); 
-    			
-    			res.status(200);
+        post("/login/", (req, res) -> {  
+        	//1. Check username and password
+        	final MySparkWebContext context = new MySparkWebContext(req, res, config.getSessionStore()); 
+        	Gson gson = new Gson();
+        	AuthRequest loginParams = gson.fromJson(context.getRequestBody(), AuthRequest.class);
+        	//Ensure user has not already signed up
+        	User user = model.getUserByEmail(loginParams.email);
+        	if(user == null)
+        	{
+        		res.status(403);
     			res.type("application/json");
-            	return json;
-    		}else
-    		{
-    			res.status(401);
+            	return "No such user";
+        	}
+        	if(!AuthenticationHelpers.checkPassword(loginParams.password, user.getHashedPassword()))
+        	{
+        		res.status(401);
     			res.type("application/json");
-            	return "Login error";
-    		}
-    		
+            	return "Invalid password";
+        	}
+        	//2. Generate user profile
+        	String token = AuthenticationHelpers.getUserToken(AuthenticationHelpers.createUserProfile(loginParams));
+        	//3. Return token
+			res.status(200);
+			res.type("application/json");
+        	return token;  		
         });
         
         // NOTE: this is currently just stubbed so i can interact via the javascript app
@@ -213,10 +196,4 @@ public class Main {
         }
         return 4567; //return default port if heroku-port isn't set (i.e. on localhost)
     }
-}
-
-class AuthRequest {
-	public String email;
-	public String password;
-	AuthRequest() {}
 }

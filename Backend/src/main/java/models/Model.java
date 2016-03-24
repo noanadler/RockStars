@@ -10,7 +10,7 @@ public interface Model {
 	List<PackingListItem> getCountryPackingListItems(Country country);
 	User getUserByUid(UUID uId);
 	User getUserByEmail(String email);
-	void insertUser(UUID uid, String name, String email, String gender, Country[] countries);
+	UUID insertUser(String name, String email, String password, String gender, String[] countries);
 	void setUserVerified(UUID uId);
 	boolean isSubscribedToNotifications(UUID uId);
 	List<String> getCountrySubscribers(String country);
