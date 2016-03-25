@@ -21,6 +21,7 @@ public class User {
     public void setName(String name){this.name = name;}
     public String getEmail(){return email;}
     public String getHashedPassword(){return password;}
+    public void setHashedPassword(String password){this.password = password;}
     public void setEmail(String email){this.email = email;}
     public String getGender(){return gender;}
     public void setGender(String gender){this.gender = gender;}
@@ -37,6 +38,6 @@ public class User {
     public boolean getVerified(){return verified;}
     public void setVerified(boolean verified){this.verified = verified;}
     public boolean getNotifications(){return notification;}
-    public void setNotifications(boolean notifications){this.notification = notification;}
+    public void setNotifications(boolean notifications){this.notification = notifications;}
 
 }

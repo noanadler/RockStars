@@ -6,6 +6,7 @@ import java.util.UUID;
 public interface Model {
 	Country getCountry(String countryId);
 	List<Country> getCountries();
+	List<User> getUsers();
 	List<Vaccine> getCountryVaccines(Country country);
 	List<PackingListItem> getCountryPackingListItems(Country country);
 	User getUserByUid(UUID uId);

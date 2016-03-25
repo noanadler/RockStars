@@ -6,5 +6,6 @@ public class AuthRequest {
 		public String gender;
 		public String name;
 		public String[] countries;
+		public String notification;
 		AuthRequest() {}
 }

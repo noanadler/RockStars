@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.UUID;
 
 import models.Country;
 import models.Model;
@@ -63,6 +63,8 @@ public class Main {
         });  
         
         before("/testauth", new XHRRequiresAuthenticationFilter(config, "HeaderClient"));
+        before("/users", new XHRRequiresAuthenticationFilter(config, "HeaderClient"));
+        before("/users/:uuid", new XHRRequiresAuthenticationFilter(config, "HeaderClient"));
         
         /**
          * Sign up a user
@@ -121,16 +123,54 @@ public class Main {
         	return token;  		
         });
         
-        // NOTE: this is currently just stubbed so i can interact via the javascript app
-        get("/user", (req, res) -> {
-        	User user = new User();
-        	user.setCountries(new String[] { "canada", "mexico"});
-        	user.setNotifications(true);
-        	user.setGender("M");
-        	user.setName("John Gadbois");
-        	
-    		Gson gson = new Gson();
-			String json = gson.toJson(user); 
+        /**
+         * Creates a new User and saves him in the database
+         */
+        //accept basic auth info in HTTPS header, return token
+        put("/users/:uuid", (req, res) -> {  
+        	final MySparkWebContext context = new MySparkWebContext(req, res, config.getSessionStore()); 
+        	Gson gson = new Gson();
+        	UUID uuid = UUID.fromString(req.params("uuid"));
+        	User user = model.getUserByUid(uuid);
+        	AuthRequest loginParams = gson.fromJson(context.getRequestBody(), AuthRequest.class);
+        	if(user == null)
+        	{
+        		res.status(403);
+    			res.type("application/json");
+            	return "No such user";
+        	}
+        	if(loginParams.name != null){user.setName(loginParams.name);}
+        	if(loginParams.email != null){user.setEmail(loginParams.email);}
+        	if(loginParams.password != null){user.setHashedPassword(AuthenticationHelpers.hashPassword(loginParams.password.toCharArray()));}
+        	if(loginParams.gender != null){user.setGender(loginParams.gender);}
+        	if(loginParams.countries != null){user.setCountries(loginParams.countries);}
+        	if(loginParams.notification != null){user.setNotifications(Boolean.valueOf(loginParams.notification));}
+        	model.updateUser(user);
+        	String json = gson.toJson(user);
+        	//3. Return token
+			res.status(200);
+			res.type("application/json");
+        	return json;  		
+        });
+        
+        // Return JSON list of users
+        get("/users", (req, res) -> {
+        	Gson gson = new Gson();
+        	List<User> users = model.getUsers();
+        	String json = gson.toJson(users);
+			
+			res.status(200);
+			res.type("application/json");
+        	return json;        	
+        });
+        
+     // Return user by ID
+        get("/users/:uuid", (req, res) -> {
+        	final MySparkWebContext context = new MySparkWebContext(req, res, config.getSessionStore()); 
+        	Gson gson = new Gson();
+        	UUID uuid = UUID.fromString(req.params("uuid"));
+        	User user = model.getUserByUid(uuid);
+        	String json = gson.toJson(user);
 			
 			res.status(200);
 			res.type("application/json");

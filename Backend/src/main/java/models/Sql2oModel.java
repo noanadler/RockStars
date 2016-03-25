@@ -1,5 +1,8 @@
 package models;
 
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,6 +13,7 @@ import org.sql2o.Sql2o;
 
 public class Sql2oModel implements Model {
 	private Sql2o sql2o;
+	private DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 	
     public Sql2oModel(Sql2o sql2o) {
         this.sql2o = sql2o;
@@ -59,6 +63,15 @@ public class Sql2oModel implements Model {
 	}
 	
 	@Override
+	public List<User> getUsers() {
+        try (Connection conn = sql2o.open()) {
+        	List<User> users = conn.createQuery("select * from users")  
+	                .executeAndFetch(User.class);
+            return users;
+        }
+	}
+	
+	@Override
 	public User getUserByUid(UUID uId){
 		try (Connection conn = sql2o.open()) {
 			List<User> users = conn.createQuery("select * from users where id = '" + uId + "'")  
@@ -89,9 +102,10 @@ public class Sql2oModel implements Model {
 	public UUID insertUser(String name, String email, String password, String gender, String[] countries){
 		//TODO
 		String insertSql = 
-				"insert into users(id, name, email, password, gender, countries) " +
-				"values (:uidParam, :nameParam, :emailParam, :passwordParam, :genderParam, :countriesParam)";
+				"insert into users(id, name, email, password, gender, countries, registered_at) " +
+				"values (:uidParam, :nameParam, :emailParam, :passwordParam, :genderParam, :countriesParam, :registered_atParam)";
 			UUID uuid = UUID.randomUUID();
+			Date date = new Date();
 			try (Connection conn = sql2o.open()) {
 			    conn.createQuery(insertSql)
 			    	.addParameter("uidParam", uuid)
@@ -100,6 +114,7 @@ public class Sql2oModel implements Model {
 				    .addParameter("passwordParam", password)
 				    .addParameter("genderParam", gender)
 				    .addParameter("countriesParam", countries)
+				    .addParameter("registered_atParam", dateFormat.format(date))
 				    .executeUpdate();
 			    return uuid;
 			}
@@ -121,7 +136,7 @@ public class Sql2oModel implements Model {
 	public boolean isSubscribedToNotifications(UUID uId){
 		//TODO
         try (Connection conn = sql2o.open()) {
-        	List<User> users = conn.createQuery("select notifications from users where id=:uIdParam")
+        	List<User> users = conn.createQuery("select notifications from users where id = :uIdParam")
        			 	.addParameter("uIdParam", uId)
 	                .executeAndFetch(User.class);
         	 User user = users.get(0);
@@ -156,9 +171,7 @@ public class Sql2oModel implements Model {
 	public void updateUser(User user){
 		//TODO
 		String updateSql = 
-				"update users" +
-				"SET name=:nameParam, email=:emailParam, password=:passwordParam, gender=:genderParam, countries=:countriesParam)" +
-				"where id =:uidParam";
+				"update users SET name = :nameParam, email = :emailParam, password = :passwordParam, gender = :genderParam, countries = :countriesParam, notification = :notificationParam where id = :uidParam";
 			
 			try (Connection conn = sql2o.open()) {
 			    conn.createQuery(updateSql)
@@ -168,6 +181,7 @@ public class Sql2oModel implements Model {
 				    .addParameter("passwordParam", user.password)
 				    .addParameter("genderParam", user.gender)
 				    .addParameter("countriesParam", user.countries)
+				    .addParameter("notificationParam", user.notification)
 				    .executeUpdate();
 			}
 	}
