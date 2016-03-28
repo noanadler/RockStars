@@ -1,8 +1,9 @@
 import static spark.Spark.*;
 
-
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.security.Key;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +23,7 @@ import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.core.profile.UserProfile;
+import org.pac4j.core.util.CommonHelper;
 import org.pac4j.jwt.profile.JwtGenerator;
 import org.sql2o.Sql2o;
 import org.sql2o.quirks.PostgresQuirks;
@@ -29,7 +31,13 @@ import org.sql2o.quirks.Quirks;
 
 
 import com.google.gson.Gson;
-
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWEObject;
+import com.nimbusds.jose.crypto.DirectDecrypter;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.JWTParser;
+import com.nimbusds.jwt.SignedJWT;
 
 import auth.AuthFactory;
 import auth.AuthRequest;
@@ -65,6 +73,7 @@ public class Main {
         before("/testauth", new XHRRequiresAuthenticationFilter(config, "HeaderClient"));
         before("/users", new XHRRequiresAuthenticationFilter(config, "HeaderClient"));
         before("/users/:uuid", new XHRRequiresAuthenticationFilter(config, "HeaderClient"));
+        before("/currentuuid", new XHRRequiresAuthenticationFilter(config, "HeaderClient"));
         
         /**
          * Sign up a user
@@ -159,6 +168,35 @@ public class Main {
         	Gson gson = new Gson();
         	List<User> users = model.getUsers();
         	String json = gson.toJson(users);
+			
+			res.status(200);
+			res.type("application/json");
+        	return json;        	
+        });
+        
+     // Return JSON list of users
+        get("/currentuuid", (req, res) -> {
+        	final MySparkWebContext context = new MySparkWebContext(req, res, config.getSessionStore());
+        	String header = context.getRequestHeader("Authorization").replaceAll("Bearer ", "");
+        	String userEmail = "";
+		        try {
+			        final JWT jwt = JWTParser.parse(header);
+		            final JWEObject jweObject = (JWEObject) jwt;
+		            CommonHelper.assertNotBlank("encryptionSecret", AuthenticationHelpers.JWT_SALT);
+
+	                jweObject.decrypt(new DirectDecrypter(AuthenticationHelpers.JWT_SALT.getBytes("UTF-8")));
+	                // Extract payload
+	                SignedJWT signedJWT = jweObject.getPayload().toSignedJWT();
+	                JWTClaimsSet claimSet = signedJWT.getJWTClaimsSet();
+			        userEmail = claimSet.getSubject().replaceAll("UserProfile#", "");
+	                System.out.println(userEmail);
+				} catch (ParseException | JOSEException | UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+        	Gson gson = new Gson();
+        	User user = model.getUserByEmail(userEmail);
+        	String json = gson.toJson(user.getId());
 			
 			res.status(200);
 			res.type("application/json");
