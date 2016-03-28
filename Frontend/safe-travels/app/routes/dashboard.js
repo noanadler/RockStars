@@ -1,8 +1,9 @@
 import Ember from 'ember';
 import ENV from 'safe-travels/config/environment';
 import User from 'safe-travels/models/user';
+import AuthenticatedRouteMixin from 'ember-simple-auth/mixins/authenticated-route-mixin';
 
-export default Ember.Route.extend({
+export default Ember.Route.extend(AuthenticatedRouteMixin, {
   session: Ember.inject.service('session'),
   model() {
     return Ember.$.get(ENV.APP.apiUrl + '/user').then(function(response) {

@@ -11,12 +11,12 @@ export default Ember.Controller.extend({
         user = this.get('user'),
         session = this.get('session');
 
-      //Ember.$.post(ENV.APP.apiUrl + '/signup', credentials).then(function() {
+      Ember.$.post(ENV.APP.apiUrl + '/signup', JSON.stringify(credentials)).then(function() {
         session.authenticate(authenticator, { identification: credentials.email, password: credentials.password }).then(function() {
           //authenticated
           session.set('data.user', credentials.email );
         });
-      //});
+      });
     }
   }
 });
