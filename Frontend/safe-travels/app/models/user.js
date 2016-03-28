@@ -4,6 +4,10 @@ export default Ember.Object.extend({
   email: null,
   gender: null,
   birthDate: null,
+  notification: false,
+  verified: false,
+  password: null,
+  name: null,
   countries: [],
   countryNames: Ember.computed('countries.[]', function() {
     return this.get('countries').mapBy('full_name');
@@ -38,5 +42,20 @@ export default Ember.Object.extend({
     });
 
     return uniqItems;
+  },
+  toJSON: function() {
+    var json = {
+      email: this.get('email'),
+      gender: this.get('gender'),
+      notification: this.get('notification'),
+      countries: this.get('countries').mapBy('country'),
+      name: this.get('name')
+    }
+
+    if(this.get('password')) {
+      json.password = this.get('password');
+    }
+
+    return JSON.stringify(json);
   }
 });

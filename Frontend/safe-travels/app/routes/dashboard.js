@@ -6,7 +6,15 @@ import AuthenticatedRouteMixin from 'ember-simple-auth/mixins/authenticated-rout
 export default Ember.Route.extend(AuthenticatedRouteMixin, {
   session: Ember.inject.service('session'),
   model() {
-    return Ember.$.get(ENV.APP.apiUrl + '/user').then(function(response) {
+    var headers = {}
+    this.get('session').authorize('authorizer:token', (header, token) => {
+      headers[header] = token;
+    });
+
+    return Ember.$.ajax({
+      url: ENV.APP.apiUrl + '/users/' + this.get('session.data.user'),
+      headers: headers
+    }).then(function(response) {
       var user = User.create();
 
       response.countries.forEach(function(country) {

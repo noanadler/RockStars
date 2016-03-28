@@ -149,6 +149,7 @@ public class Main {
     			res.type("application/json");
             	return "No such user";
         	}
+
         	if(loginParams.name != null){user.setName(loginParams.name);}
         	if(loginParams.email != null){user.setEmail(loginParams.email);}
         	if(loginParams.password != null){user.setHashedPassword(AuthenticationHelpers.hashPassword(loginParams.password.toCharArray()));}
@@ -209,6 +210,7 @@ public class Main {
         	Gson gson = new Gson();
         	UUID uuid = UUID.fromString(req.params("uuid"));
         	User user = model.getUserByUid(uuid);
+        	user.setHashedPassword(""); // we don't want to send hashed down to client
         	String json = gson.toJson(user);
 			
 			res.status(200);

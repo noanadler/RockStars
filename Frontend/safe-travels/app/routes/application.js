@@ -8,7 +8,9 @@ export default Ember.Route.extend(ApplicationRouteMixin, {
 //    console.log(transition.targetName)
     //this._super()
     if(!this.get('session.isAuthenticated')) {
-      this.transitionTo('signup');
+      if(transition.targetName == "index") {
+        this.transitionTo('signup');
+      }
     } else {
       if(transition.targetName == "index") {
         this.transitionTo('dashboard');

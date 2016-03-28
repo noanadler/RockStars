@@ -9,12 +9,24 @@ export default Ember.Controller.extend({
       var credentials = this.getProperties('email', 'password'),
         authenticator = 'authenticator:jwt',
         user = this.get('user'),
-        session = this.get('session');
+        session = this.get('session'),
+        controller = this;
 
       Ember.$.post(ENV.APP.apiUrl + '/signup', JSON.stringify(credentials)).then(function() {
         session.authenticate(authenticator, { identification: credentials.email, password: credentials.password }).then(function() {
           //authenticated
-          session.set('data.user', credentials.email );
+          session.authorize('authorizer:token', (header, token) => {
+            var headers = {}
+            headers[header] = token;
+
+            Ember.$.ajax({
+              url: ENV.APP.apiUrl + '/currentuuid',
+              headers: headers
+            }).then(function(data) {
+              session.set('data.user', data );
+              controller.transitionToRoute('setup');
+            });
+          });
         });
       });
     }
