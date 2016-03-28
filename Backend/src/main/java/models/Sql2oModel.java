@@ -114,7 +114,7 @@ public class Sql2oModel implements Model {
 				    .addParameter("passwordParam", password)
 				    .addParameter("genderParam", gender)
 				    .addParameter("countriesParam", countries)
-				    .addParameter("registered_atParam", dateFormat.format(date))
+				    .addParameter("registered_atParam", date)
 				    .executeUpdate();
 			    return uuid;
 			}

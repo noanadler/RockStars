@@ -72,6 +72,7 @@ public class Main {
         post("/signup", (req, res) -> {
         	final MySparkWebContext context = new MySparkWebContext(req, res, config.getSessionStore());  		
         	Gson gson = new Gson();
+        	System.out.println(context.getRequestBody());
         	AuthRequest loginParams = gson.fromJson(context.getRequestBody(), AuthRequest.class);
         	//Ensure user has not already signed up
         	if(model.getUserByEmail(loginParams.email) != null)
