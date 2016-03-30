@@ -28,6 +28,8 @@ public class Sql2oModel implements Model {
 			Country country = countries.get(0);
 			country.setVaccines(getCountryVaccines(country));
 			country.setItems(getCountryPackingListItems(country));
+			country.setAlerts(getCountryAlerts(country));
+
 			return country;
         }
 	}
@@ -189,9 +191,9 @@ public class Sql2oModel implements Model {
 	@Override
 	public List<Alert> getCountryAlerts(Country country) {
         try (Connection conn = sql2o.open()) {
-            List<Alert> alerts = conn.createQuery("select * from alerts where name in ('" + String.join(",", country.alert_names).replace(",", "','") + "')".replace(" '", "'"))
-            		
-                    .executeAndFetch(Alert.class);
+            List<Alert> alerts = conn.createQuery("select * from alerts where country_id=:country")
+        		.addParameter("country", country.getFullName())
+                .executeAndFetch(Alert.class);
             return alerts;
         }
 	}

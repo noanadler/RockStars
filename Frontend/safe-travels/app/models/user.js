@@ -1,6 +1,7 @@
 import Ember from 'ember';
 
-export default Ember.Object.extend({
+var User = Ember.Object.extend({
+  session: Ember.inject.service('session'),
   email: null,
   gender: null,
   birthDate: null,
@@ -9,6 +10,7 @@ export default Ember.Object.extend({
   password: null,
   name: null,
   countries: [],
+  alerts: [],
   countryNames: Ember.computed('countries.[]', function() {
     return this.get('countries').mapBy('full_name');
   }),
@@ -29,6 +31,15 @@ export default Ember.Object.extend({
     });
 
     return this.uniqByName(vaccines);
+  }),
+  alerts: Ember.computed('countries.[]', function() {
+    var alerts = [];
+    this.get('countries').forEach(function(c) {
+      //c.packing
+      alerts.pushObjects(c.get('alerts'));
+    });
+
+    return this.uniqByName(alerts);
   }),
   uniqByName: function(items) {
     var names = [];
@@ -59,3 +70,5 @@ export default Ember.Object.extend({
     return JSON.stringify(json);
   }
 });
+
+export default User;
