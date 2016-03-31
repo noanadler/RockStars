@@ -1,8 +1,20 @@
 <div class="row">
   <div class="col-xs-12">
-    <h1 class="page-header">Trip Information <small>{{to-sentence model.countryNames}}</small></h1>
+    <h1 class="page-header">Trip Information <small>{{to-sentence model.countryNames}} ({{#link-to 'setup'}}Change{{/link-to}})</small></h1>
    </div>
 </div>
+{{#if model.alerts.length}}
+  <div class='row'>
+    <div class="col-xs-12">
+      <div class="alert alert-danger" role="alert">
+        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+        <span class="sr-only">Alerts Found:</span>
+          There are alerts found for your trip
+      </div>
+    </div>
+  </div>
+{{/if}}
+
 <div class="row placeholders">
    <div class="col-xs-6 col-sm-3 placeholder">
      <a data-toggle="modal" data-target="#listModal">
@@ -19,10 +31,10 @@
      </a>
    </div>
    <div class="col-xs-6 col-sm-3 placeholder">
-     <a>
+     <a data-toggle="modal" data-target="#alertModal">
        <i class="fa fa-exclamation-circle" style='font-size: 100px;'></i>
-       <h4>Notifications</h4>
-       <span class="text-muted">See Travel Notifications for your trip</span>
+       <h4>Alerts</h4>
+       <span class="text-muted">See Travel Alerts for your trip ({{model.alerts.length}})</span>
      </a>
    </div>
    <div class="col-xs-6 col-sm-3 placeholder">
@@ -45,7 +57,7 @@
        <div class="modal-body">
          <div class="list-group">
            {{#each model.packingListItems as |item|}}
-            <a href="#" class="list-group-item active">{{item.name}}</a>
+            <a href="#" class="list-group-item">{{item.name}}</a>
            {{/each}}
          </div>
        </div>
@@ -67,7 +79,30 @@
        <div class="modal-body">
          <div class="list-group">
            {{#each model.vaccines as |item|}}
-            <a href="#" class="list-group-item active">{{item.name}}</a>
+            <a href="#" class="list-group-item">{{item.name}}</a>
+           {{/each}}
+         </div>
+       </div>
+       <div class="modal-footer">
+         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+         <button type="button" class="btn btn-primary">Save changes</button>
+       </div>
+     </div>
+   </div>
+ </div>
+
+ <!-- Alert Modal -->
+ <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+   <div class="modal-dialog" role="document">
+     <div class="modal-content">
+       <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+         <h4 class="modal-title" id="myModalLabel">Alerts</h4>
+       </div>
+       <div class="modal-body">
+         <div class="list-group">
+           {{#each model.alerts as |alert|}}
+            <div class="list-group-item"><strong>{{alert.title}}</strong><br/>{{alert.description}}</div>
            {{/each}}
          </div>
        </div>
@@ -112,7 +147,7 @@
 
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" {{action 'saveProfile'}}>Save changes</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" {{action 'saveProfile'}}>Save changes</button>
       </div>
     </div>
   </div>

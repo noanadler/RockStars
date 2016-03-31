@@ -5,53 +5,32 @@ import AuthenticatedRouteMixin from 'ember-simple-auth/mixins/authenticated-rout
 
 export default Ember.Route.extend(AuthenticatedRouteMixin, {
   session: Ember.inject.service('session'),
-  model() {
-    var headers = {}
-    this.get('session').authorize('authorizer:token', (header, token) => {
-      headers[header] = token;
-    });
+  user: Ember.inject.service('user'),
 
+  model() {
     return Ember.RSVP.hash({
       countries: Ember.$.get(ENV.APP.apiUrl + '/countries').then(function(response) {
         return response.map(function(country) {
-          return Ember.Object.create({ id: country.country, text: country.full_name});
+          return Ember.Object.create({ id: country.country, text: country.full_name });
         });
       }),
-      user: Ember.$.ajax({
-        url: ENV.APP.apiUrl + '/users/' + this.get('session.data.user'),
-        headers: headers
-      }).then(function(response) {
-        var user = User.create();
-        if(response.countries) {
-          response.countries.forEach(function(country) {
-            Ember.$.get(ENV.APP.apiUrl + '/country/' + country).then(function(country) {
-              var country = Ember.Object.create(country)
-              country.set('items', country.get('items').map(function(i) {
-                return Ember.Object.create(i);
-              }));
-              country.set('vaccines', country.get('vaccines').map(function(i) {
-                return Ember.Object.create(i);
-              }));
-
-              user.get('countries').pushObject(Ember.Object.create(country));
-            });
-          });
-        }
-        delete response.countries
-        user.setProperties(response)
-        return user;
-      })
+      user: this.get('user').getCurrentUser()
     })
   },
   actions: {
     submit() {
       var headers = {}
+      var route = this;
       this.get('session').authorize('authorizer:token', (header, token) => {
         headers[header] = token;
       });
 
-      //console.log(this.get('controller.model.user').toJSON());
-      this.get('controller.model.user').set('countries', this.get('controller.countries').map(function(c) {
+      /*this.get('controller.model.countries').filter(function(c) {
+        return route.get('controller.countries').mapBy('id').contains(c.get('id'))
+      }).forEach(function(c) {
+        route.get('controller.model.user').addCountry(c);
+      })*/
+      route.get('controller.model.user').set('countries', route.get('controller.countries').map(function(c) {
         return { country: c.id };
       }));
 
@@ -62,9 +41,10 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
         contentType: "application/json; charset=utf-8",
         dataType:'json',
         data: this.get('controller.model.user').toJSON()
+      }).then(function() {
+        route.get('user').set('currentUser', null);
+        route.transitionTo('dashboard')
       })
-
-      this.transitionTo('dashboard')
     }
   }
 });
