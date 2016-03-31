@@ -82,7 +82,7 @@ public class EmailGenerator {
 		        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
 		        String getStarted_atStr = fmt.print(new DateTime(alert.getStarted_at()));
 				builder.append("Alert date: " + getStarted_atStr + _newLineSeparator);
-				builder.append(_newLineSeparator + _newLineSeparator);
+				builder.append(_newLineSeparator);
 			}
 		}
 		String template3 = builder.toString();
