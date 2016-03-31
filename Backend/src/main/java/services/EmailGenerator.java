@@ -75,9 +75,9 @@ public class EmailGenerator {
 			builder.append(country + ":" + _newLineSeparator);
 			builder.append("----------"+ _newLineSeparator + _newLineSeparator);
 			for(Alert alert : alerts){
-				builder.append("Alert title: " + alert.getAlertTitle() + _newLineSeparator);
-				builder.append("Alert summary: " + alert.getAlertSummary() + _newLineSeparator);
-				builder.append("Alert date: " + new DateTime(alert.getAlertDate()) + _newLineSeparator);
+				builder.append("Alert title: " + alert.getTitle() + _newLineSeparator);
+				builder.append("Alert summary: " + alert.getDescription() + _newLineSeparator);
+				builder.append("Alert date: " + new DateTime(alert.getStarted_at()) + _newLineSeparator);
 				builder.append(_newLineSeparator + _newLineSeparator);
 			}
 		}

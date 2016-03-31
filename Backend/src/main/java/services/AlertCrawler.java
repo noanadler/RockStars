@@ -100,10 +100,9 @@ public class AlertCrawler {
 							return null;
 						}
 		    		  Alert alertObj = new Alert();
-		    		  alertObj.setAlertTitle(alertTitle);
-		    		  alertObj.setAlertSummary(alertSummary);
-		    		  alertObj.setAlertDate(alertDate);
-		    		  alertObj.setAlertStatus(alertStatus);
+		    		  alertObj.setTitle(alertTitle);
+		    		  alertObj.setDescription(alertSummary);
+		    		  alertObj.setStarted_at(alertDate);
 		    		  countryAlerts.add(alertObj);
 		    		}
 	    	}
