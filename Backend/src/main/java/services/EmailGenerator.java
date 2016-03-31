@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.sql2o.Sql2o;
 
 import com.sendgrid.*;
@@ -77,7 +79,9 @@ public class EmailGenerator {
 			for(Alert alert : alerts){
 				builder.append("Alert title: " + alert.getTitle() + _newLineSeparator);
 				builder.append("Alert summary: " + alert.getDescription() + _newLineSeparator);
-				builder.append("Alert date: " + new DateTime(alert.getStarted_at()) + _newLineSeparator);
+		        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
+		        String getStarted_atStr = fmt.print(new DateTime(alert.getStarted_at()));
+				builder.append("Alert date: " + getStarted_atStr + _newLineSeparator);
 				builder.append(_newLineSeparator + _newLineSeparator);
 			}
 		}
