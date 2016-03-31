@@ -195,5 +195,16 @@ public class Sql2oModel implements Model {
             return alerts;
         }
 	}
+	
+	@Override
+	public List<String> getDistinctAlertCountries(){
+		//TOOD
+		return null;
+	}
+	
+	@Override
+	public void clearAlerts(){
+		//TODO
+	}
 
 }

@@ -19,4 +19,6 @@ public interface Model {
 	void updateSubscribers(String country, List<String> emails);
 	void updateUser(User user);
 	List<Alert> getCountryAlerts(Country country);
+	List<String> getDistinctAlertCountries();
+	void clearAlerts();
 }

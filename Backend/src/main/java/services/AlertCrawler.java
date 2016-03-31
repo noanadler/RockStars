@@ -1,6 +1,9 @@
+package services;
+
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -14,9 +17,12 @@ import org.sql2o.Sql2o;
 import org.sql2o.Sql2oException;
 
 import data.HerokuDataSource;
+import models.Model;
+import models.Alert;
+import models.Sql2oModel;
 
 public class AlertCrawler {
-    public static void main(String[] args) {
+    public static HashMap<String, ArrayList<Alert>> crawl() {
 		String format = "MMMM dd, yyyy";
 		SimpleDateFormat sdf = new SimpleDateFormat(format);
     	
@@ -29,6 +35,7 @@ public class AlertCrawler {
 			doc = Jsoup.connect("http://wwwnc.cdc.gov/travel/destinations/list").get();
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
+			return null;
 		}
 		
 		HashMap<String, String> countryLinks = new HashMap<String, String>();
@@ -38,22 +45,25 @@ public class AlertCrawler {
 			for(Element Country : CountryData){
 				String[] urlParts = Country.getElementsByTag("a").attr("href").split("/");		    	
 		    	String countryKey = urlParts[urlParts.length - 1]; // ID
-		    	System.out.println(countryKey);
 				countryLinks.put( countryKey,  Country.getElementsByTag("a").attr("href"));
 			}				
 		}
-		
+		Model model = new Sql2oModel(sql2o);
+		HashMap<String, ArrayList<Alert>> curAlerts = new HashMap<>();
+		model.clearAlerts();
 		Iterator it = countryLinks.entrySet().iterator();
 	    while (it.hasNext()) {
 	        HashMap.Entry pair = (HashMap.Entry)it.next();
 	        String country = pair.getKey().toString();
 	        String link = pair.getValue().toString();
+	        ArrayList<Alert> countryAlerts = new ArrayList<>();
 	        
 	        doc = null;
 			try {
 				doc = Jsoup.connect("http://wwwnc.cdc.gov" + link).get();
 			} catch (IOException e) {
 				System.out.println(e.getMessage());
+				return null;
 			}
 	    	Element notices = doc.getElementById("travel-notices");
 	    	if(notices != null)
@@ -70,17 +80,13 @@ public class AlertCrawler {
 		    		      alertDate = sdf.parse(date);
 		    		  } catch (ParseException e) {
 		    			  System.out.println(e.getMessage());
+		    			  return null;
 		    		  }
-		    		  
-		    	      String insertTravelAlertSQL = "INSERT INTO alerts(country_id, title, description, started_at) " +
+		    		  if(alertSummary.contains("has been removed.") || alertSummary.equals("Removed")){
+		    			  continue;
+		    		  }
+		    		  String insertTravelAlertSQL = "INSERT INTO alerts(country_id, title, description, started_at) " +
 		    	    			"VALUES (:country_id, :title, :description, :started_at)";
-		    		  
-		    		  if(alertSummary.contains("has been removed.") || alertSummary.equals("Removed"))
-		    		  {
-		    			  alertStatus = "ended_at";
-			    	      insertTravelAlertSQL = "INSERT INTO alerts(country_id, title, description, ended_at) " +
-			    	    			"VALUES (:country_id, :title, :description, :ended_at)";
-		    		  }		    		  
 		    		  
 		    		  try {
 					    	con.createQuery(insertTravelAlertSQL)
@@ -91,14 +97,19 @@ public class AlertCrawler {
 					        .executeUpdate();	
 						} catch (Sql2oException e) {
 							System.out.println(e.getMessage());
+							return null;
 						}
-		    		  
+		    		  Alert alertObj = new Alert();
+		    		  alertObj.setAlertTitle(alertTitle);
+		    		  alertObj.setAlertSummary(alertSummary);
+		    		  alertObj.setAlertDate(alertDate);
+		    		  alertObj.setAlertStatus(alertStatus);
+		    		  countryAlerts.add(alertObj);
 		    		}
 	    	}
+	    	curAlerts.put(country, countryAlerts);
 	        it.remove();
 	    }
-		
-		
-    	
+		return curAlerts;
     }
 }
