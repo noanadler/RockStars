@@ -5,13 +5,19 @@ import User from 'safe-travels/models/user';
 export default Ember.Service.extend({
   session: Ember.inject.service('session'),
   currentUser: null,
+  loadUser() {
+
+  },
   getCurrentUser() {
     var service = this;
     if(this.get('currentUser')) {
+      console.log('returning user');
+
       return this.get('currentUser');
     } else {
+      console.log('loading user');
+
       var headers = {}
-      console.log(this.session);
       this.get('session').authorize('authorizer:token', (header, token) => {
         headers[header] = token;
       });
@@ -21,23 +27,12 @@ export default Ember.Service.extend({
         headers: headers
       }).then(function(response) {
         var user = User.create();
+        user.set('countries', []);
 
         if(response.countries) {
           response.countries.forEach(function(country) {
             Ember.$.get(ENV.APP.apiUrl + '/country/' + country).then(function(country) {
-              var userCountry = Ember.Object.create(country)
-              userCountry.set('items', userCountry.get('items').map(function(i) {
-                return Ember.Object.create(i);
-              }));
-              userCountry.set('vaccines', userCountry.get('vaccines').map(function(i) {
-                return Ember.Object.create(i);
-              }));
-
-              userCountry.set('alerts', userCountry.get('alerts').map(function(i) {
-                return Ember.Object.create(i);
-              }));
-
-              user.get('countries').pushObject(userCountry);
+              user.addCountry(country);
             });
           });
         }

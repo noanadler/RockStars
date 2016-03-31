@@ -11,7 +11,7 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
     return Ember.RSVP.hash({
       countries: Ember.$.get(ENV.APP.apiUrl + '/countries').then(function(response) {
         return response.map(function(country) {
-          return Ember.Object.create({ id: country.country, text: country.full_name});
+          return Ember.Object.create({ id: country.country, text: country.full_name });
         });
       }),
       user: this.get('user').getCurrentUser()
@@ -20,12 +20,17 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
   actions: {
     submit() {
       var headers = {}
+      var route = this;
       this.get('session').authorize('authorizer:token', (header, token) => {
         headers[header] = token;
       });
 
-      //console.log(this.get('controller.model.user').toJSON());
-      this.get('controller.model.user').set('countries', this.get('controller.countries').map(function(c) {
+      /*this.get('controller.model.countries').filter(function(c) {
+        return route.get('controller.countries').mapBy('id').contains(c.get('id'))
+      }).forEach(function(c) {
+        route.get('controller.model.user').addCountry(c);
+      })*/
+      route.get('controller.model.user').set('countries', route.get('controller.countries').map(function(c) {
         return { country: c.id };
       }));
 
@@ -36,9 +41,10 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
         contentType: "application/json; charset=utf-8",
         dataType:'json',
         data: this.get('controller.model.user').toJSON()
+      }).then(function() {
+        route.get('user').set('currentUser', null);
+        route.transitionTo('dashboard')
       })
-
-      this.transitionTo('dashboard')
     }
   }
 });

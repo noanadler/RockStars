@@ -68,6 +68,23 @@ var User = Ember.Object.extend({
     }
 
     return JSON.stringify(json);
+  },
+  addCountry(country) {
+    if(!this.get('countries').mapBy('country').contains(country.country)) {
+      var userCountry = Ember.Object.create(country)
+      userCountry.set('items', userCountry.get('items').map(function(i) {
+        return Ember.Object.create(i);
+      }));
+      userCountry.set('vaccines', userCountry.get('vaccines').map(function(i) {
+        return Ember.Object.create(i);
+      }));
+
+      userCountry.set('alerts', userCountry.get('alerts').map(function(i) {
+        return Ember.Object.create(i);
+      }));
+
+      this.get('countries').pushObject(userCountry);
+    }
   }
 });
 
