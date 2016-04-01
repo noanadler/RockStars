@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
+import data.ArrayConverter;
 import data.HerokuDataSource;
 import models.Sql2oModel;
 import models.User;
@@ -13,6 +14,8 @@ import models.User;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.sql2o.Sql2o;
+import org.sql2o.quirks.PostgresQuirks;
+import org.sql2o.quirks.Quirks;
 
 public class Registrator {
 
@@ -21,7 +24,8 @@ public class Registrator {
     private Sql2oModel _model;
     
     public Registrator(){
-    	_model = new Sql2oModel(new Sql2o(new HerokuDataSource()));
+        Quirks arraySupport = ArrayConverter.arrayConvertingQuirks(new PostgresQuirks(), true, false);
+    	_model = new Sql2oModel(new Sql2o(new HerokuDataSource(), arraySupport));
     }
     public void beginRegistration(String userEmail, String userPassword, String userName, String userGender, StringBuilder errorReporter){
         if(emailExists(userEmail)){

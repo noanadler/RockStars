@@ -1,5 +1,6 @@
 import static spark.Spark.*;
 
+
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.security.Key;
@@ -10,12 +11,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+
 import models.Country;
 import models.Model;
 import models.Sql2oModel;
 import models.User;
+import services.Registrator;
 import spark.Request;
 import spark.Response;
+
 
 
 import org.pac4j.core.config.Config;
@@ -30,6 +34,7 @@ import org.sql2o.quirks.PostgresQuirks;
 import org.sql2o.quirks.Quirks;
 
 
+
 import com.google.gson.Gson;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWEObject;
@@ -38,6 +43,7 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
+
 
 import auth.AuthFactory;
 import auth.AuthRequest;
@@ -248,7 +254,23 @@ public class Main {
 			res.status(200);
 			res.type("application/json");
         	return json;
-        }); 
+        });
+        
+        get("/register/:uuid", (req, res) -> {
+        	UUID uuid = UUID.fromString(req.params("uuid"));
+        	new Registrator().verifyUser(uuid);
+			res.status(200);
+			res.type("application/json");
+        	return "{ \"success\": true }";
+        });
+        
+        get("/noNotifications/:uuid", (req, res) -> {
+        	UUID uuid = UUID.fromString(req.params("uuid"));
+        	new Registrator().deregisterFromNotifications(uuid, true);
+			res.status(200);
+			res.type("application/json");
+        	return "{ \"success\": true }";
+        });        
         
         // SETUP CORS
         options("/*", (request, response) -> {
