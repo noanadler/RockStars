@@ -88,7 +88,7 @@ public class EmailGenerator {
 		String template3 = builder.toString();
 		String template4 = "That's all for today. If you are no longer insterested in"
 				+ " getting these emails, please unregister by clicking the following link:";
-		String template5 = "https://safe-travels.herokuapp.com/noNotifications?userId=%s";
+		String template5 = "https://safe-travels-app.herokuapp.com/noNotifications/%s";
 		String template6 = "Stay healthy and happy,";
     	String template7 = "The SafeTravels team";
     	return String.format(template1, userName) + _newLineSeparator + _newLineSeparator + template2 + 
@@ -102,7 +102,7 @@ public class EmailGenerator {
     			+ "with SafeTravels. It is our pleasure to help you take good care of yourself while "
     			+ "traveling.";
     	String template3 = "To complete the registration process, please click the following link: ";
-    	String template4 = "https://safe-travels.herokuapp.com/register?userId=%s";
+    	String template4 = "https://safe-travels-app.herokuapp.com/register/s%";
     	String template5 = "Stay healthy and happy,";
     	String template6 = "The SafeTravels team";
     	return String.format(template1, userName) + _newLineSeparator + _newLineSeparator + template2 + _newLineSeparator + template3 +
