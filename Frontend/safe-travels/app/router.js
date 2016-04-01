@@ -10,6 +10,8 @@ Router.map(function() {
   this.route('login');
   this.route('dashboard');
   this.route('setup');
+  this.route('register', { path: '/register/:uuid' });
+  this.route('noNotifications', { path: '/noNotifications/:uuid' });
 });
 
 export default Router;

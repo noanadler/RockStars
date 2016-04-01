@@ -28,6 +28,8 @@ public class Sql2oModel implements Model {
 			Country country = countries.get(0);
 			country.setVaccines(getCountryVaccines(country));
 			country.setItems(getCountryPackingListItems(country));
+			country.setAlerts(getCountryAlerts(country));
+
 			return country;
         }
 	}
@@ -99,11 +101,13 @@ public class Sql2oModel implements Model {
 	}
 	
 	@Override
-	public UUID insertUser(String name, String email, String password, String gender, String[] countries){
+	public UUID insertUser(String name, String email, String password, String gender, String[] countries, 
+			boolean verified, boolean notification){
 		//TODO
 		String insertSql = 
-				"insert into users(id, name, email, password, gender, countries, registered_at) " +
-				"values (:uidParam, :nameParam, :emailParam, :passwordParam, :genderParam, :countriesParam, :registered_atParam)";
+				"insert into users(id, name, email, password, gender, countries, registered_at, verified, notification) " +
+				"values (:uidParam, :nameParam, :emailParam, :passwordParam, :genderParam,"
+				+ " :countriesParam, :registered_atParam, :verifiedParam, :notificationParam)";
 			UUID uuid = UUID.randomUUID();
 			Date date = new Date();
 			try (Connection conn = sql2o.open()) {
@@ -115,10 +119,11 @@ public class Sql2oModel implements Model {
 				    .addParameter("genderParam", gender)
 				    .addParameter("countriesParam", countries)
 				    .addParameter("registered_atParam", date)
+				    .addParameter("verifiedParam", verified)
+				    .addParameter("notificationParam", notification)
 				    .executeUpdate();
 			    return uuid;
-			}
-			
+			}		
 	}
 	
 	@Override
@@ -171,7 +176,8 @@ public class Sql2oModel implements Model {
 	public void updateUser(User user){
 		//TODO
 		String updateSql = 
-				"update users SET name = :nameParam, email = :emailParam, password = :passwordParam, gender = :genderParam, countries = :countriesParam, notification = :notificationParam where id = :uidParam";
+				"update users SET name = :nameParam, email = :emailParam, password = :passwordParam, gender = :genderParam, countries = :countriesParam, verified = :verifiedParam, "
+				+ "notification = :notificationParam where id = :uidParam";
 			
 			try (Connection conn = sql2o.open()) {
 			    conn.createQuery(updateSql)
@@ -181,7 +187,22 @@ public class Sql2oModel implements Model {
 				    .addParameter("passwordParam", user.password)
 				    .addParameter("genderParam", user.gender)
 				    .addParameter("countriesParam", user.countries)
+				    .addParameter("verifiedParam", user.verified)
 				    .addParameter("notificationParam", user.notification)
+				    .executeUpdate();
+			}
+	}
+	
+	@Override
+	public void updateFhirId(User user){
+		//TODO
+		String updateSql = 
+				"update users SET fhir_id = :fhirParam where id = :uidParam";
+			
+			try (Connection conn = sql2o.open()) {
+			    conn.createQuery(updateSql)
+			    	.addParameter("uidParam", user.id)	
+			    	.addParameter("fhirParam", user.fhir_id)
 				    .executeUpdate();
 			}
 	}
@@ -189,11 +210,22 @@ public class Sql2oModel implements Model {
 	@Override
 	public List<Alert> getCountryAlerts(Country country) {
         try (Connection conn = sql2o.open()) {
-            List<Alert> alerts = conn.createQuery("select * from alerts where name in ('" + String.join(",", country.alert_names).replace(",", "','") + "')".replace(" '", "'"))
-            		
-                    .executeAndFetch(Alert.class);
+            List<Alert> alerts = conn.createQuery("select * from alerts where country_id=:country")
+        		.addParameter("country", country.getFullName())
+                .executeAndFetch(Alert.class);
             return alerts;
         }
+	}
+	
+	@Override
+	public List<String> getDistinctAlertCountries(){
+		//TOOD
+		return null;
+	}
+	
+	@Override
+	public void clearAlerts(){
+		//TODO
 	}
 
 }

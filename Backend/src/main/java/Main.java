@@ -1,5 +1,6 @@
 import static spark.Spark.*;
 
+
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.security.Key;
@@ -10,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
 
 import models.Country;
 import models.Model;
@@ -22,6 +24,9 @@ import spark.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import services.Registrator;
+import spark.Request;
+import spark.Response;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.profile.CommonProfile;
@@ -34,6 +39,7 @@ import org.sql2o.quirks.PostgresQuirks;
 import org.sql2o.quirks.Quirks;
 
 
+
 import com.google.gson.Gson;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWEObject;
@@ -42,6 +48,7 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
+
 
 import auth.AuthFactory;
 import auth.AuthRequest;
@@ -75,16 +82,16 @@ public class Main {
         Quirks arraySupport = ArrayConverter.arrayConvertingQuirks(new PostgresQuirks(), true, false);
     	Sql2o sql2o = new Sql2o(new HerokuDataSource(), arraySupport);
         Model model = new Sql2oModel(sql2o);
+        Registrator registrator = new Registrator();
         
         //ng to a DSTU1 compliant server in this example
         FhirContext ctx = FhirContext.forDstu2();
-        String serverBase = "http://52.72.172.54:8080/fhir/baseDstu2";
-         
+        String serverBase = "http://52.72.172.54:8080/fhir/baseDstu2";        
         IGenericClient client = ctx.newRestfulGenericClient(serverBase);
-        User user1 = model.getUserByEmail("forrestbrazeal@yahoo.com");
+        /*User user1 = model.getUserByEmail("forrestbrazeal@yahoo.com");
         Vaccine vaccine = new Vaccine();
         vaccine.setCode("123");
-        user1.createFHIRPatientRecord(client);
+        user1.createFHIRPatientRecord(client);*/
         
         
         // Perform a search
@@ -105,7 +112,7 @@ public class Main {
 
         
         
-        user1.createFHIRImmunizationRecord(client, vaccine);
+        //user1.createFHIRImmunizationRecord(client, vaccine);
          
 
  
@@ -131,17 +138,21 @@ public class Main {
         	Gson gson = new Gson();
         	System.out.println(context.getRequestBody());
         	AuthRequest loginParams = gson.fromJson(context.getRequestBody(), AuthRequest.class);
+        	//hash password
+        	String hashedPassword = AuthenticationHelpers.hashPassword(loginParams.password.toCharArray());
+        	// store user info into database
+        	UUID uuid = registrator.beginRegistration(loginParams.email, hashedPassword, loginParams.name,  loginParams.gender, new StringBuilder());
         	//Ensure user has not already signed up
-        	if(model.getUserByEmail(loginParams.email) != null)
+        	if(uuid == null)
         	{
         		res.status(409);
     			res.type("application/json");
             	return "This email address is already registered";
         	}
-        	//hash password
-        	String hashedPassword = AuthenticationHelpers.hashPassword(loginParams.password.toCharArray());
-        	// store user info into database
-        	model.insertUser(loginParams.name, loginParams.email, hashedPassword, loginParams.gender, loginParams.countries);
+        	//create FHIR patient record
+            User user = model.getUserByUid(uuid);
+            user.createFHIRPatientRecord(client);
+            model.updateFhirId(user);
         	// pass to authenticator to get web token
         	String token = AuthenticationHelpers.getUserToken(AuthenticationHelpers.createUserProfile(loginParams));
         	// return token
@@ -296,7 +307,23 @@ public class Main {
 			res.status(200);
 			res.type("application/json");
         	return json;
-        }); 
+        });
+        
+        get("/register/:uuid", (req, res) -> {
+        	UUID uuid = UUID.fromString(req.params("uuid"));
+        	new Registrator().verifyUser(uuid);
+			res.status(200);
+			res.type("application/json");
+        	return "{ \"success\": true }";
+        });
+        
+        get("/noNotifications/:uuid", (req, res) -> {
+        	UUID uuid = UUID.fromString(req.params("uuid"));
+        	new Registrator().deregisterFromNotifications(uuid, true);
+			res.status(200);
+			res.type("application/json");
+        	return "{ \"success\": true }";
+        });        
         
         // SETUP CORS
         options("/*", (request, response) -> {

@@ -9,7 +9,8 @@ export function toSentence(params/*, hash*/) {
       },
       sentence;
 
-  if (data.length === 0) {
+
+  if (!data || data.length === 0) {
     sentence = '';
   } else if (data.length === 1) {
     sentence = data[0];
@@ -18,7 +19,7 @@ export function toSentence(params/*, hash*/) {
   } else {
     sentence = data.slice(0, data.length-1).join(defaultConnectors.wordsConnector) + defaultConnectors.lastWordConnector + data[data.length-1];
   }
-  console.log(data);
+  
   return sentence;
 }
 

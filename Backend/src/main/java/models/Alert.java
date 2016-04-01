@@ -3,41 +3,35 @@ package models;
 import java.util.Date;
 
 public class Alert {
-	String alertTitle;
-	String alertSummary;
-	String alertStatus;
-	String date;
-	Date alertDate;
+	int id;
+	String country_id;
+	String title;
+	String description;
+	Date started_at;
+	Date ended_at;
 	
-	public String getAlertTitle() {
-		return alertTitle;
+	public String getCountry_id(){
+		return country_id;
 	}
-	public void setAlertTitle(String alertTitle) {
-		this.alertTitle = alertTitle;
+	public void setCountry_id(String country_id){
+		this.country_id = country_id;
 	}
-	public String getAlertSummary() {
-		return alertSummary;
+	public String getTitle(){
+		return title;
 	}
-	public void setAlertSummary(String alertSummary) {
-		this.alertSummary = alertSummary;
+	public void setTitle(String title){
+		this.title = title;
 	}
-	public String getAlertStatus() {
-		return alertStatus;
+	public String getDescription(){
+		return description;
 	}
-	public void setAlertStatus(String alertStatus) {
-		this.alertStatus = alertStatus;
+	public void setDescription(String description){
+		this.description = description;
 	}
-	public String getDate() {
-		return date;
+	public Date getStarted_at(){
+		return started_at;
 	}
-	public void setDate(String date) {
-		this.date = date;
+	public void setStarted_at(Date started_at){
+		this.started_at = started_at;
 	}
-	public Date getAlertDate() {
-		return alertDate;
-	}
-	public void setAlertDate(Date alertDate) {
-		this.alertDate = alertDate;
-	}
-
 }

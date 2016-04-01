@@ -6,9 +6,7 @@ public class Country {
 	String country;
 	String full_name;
 	String[] vaccine_names;
-	String[] packinglist_names;
-	String[] alert_names;
-	
+	String[] packinglist_names;	
 
 	List<Vaccine> vaccines;
 	List<PackingListItem> items;
