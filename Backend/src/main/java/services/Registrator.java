@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
+import data.ArrayConverter;
 import data.HerokuDataSource;
 import models.Sql2oModel;
 import models.User;
@@ -13,6 +14,8 @@ import models.User;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.sql2o.Sql2o;
+import org.sql2o.quirks.PostgresQuirks;
+import org.sql2o.quirks.Quirks;
 
 public class Registrator {
 
@@ -21,14 +24,16 @@ public class Registrator {
     private Sql2oModel _model;
     
     public Registrator(){
-    	_model = new Sql2oModel(new Sql2o(new HerokuDataSource()));
+    	Quirks arraySupport = ArrayConverter.arrayConvertingQuirks(new PostgresQuirks(), true, false);
+       	_model = new Sql2oModel(new Sql2o(new HerokuDataSource(), arraySupport));
     }
-    public void beginRegistration(String userEmail, String userPassword, String userName, String userGender, StringBuilder errorReporter){
+    public void beginRegistration(String userEmail, String userPassword, String userName,
+    		String userGender, StringBuilder errorReporter){
         if(emailExists(userEmail)){
             errorReporter.append(ERR_USER_EXISTS);
             return;
         }
-        UUID uId = addUser(userName, userPassword, userEmail, userGender, new String[0]);
+        UUID uId = addUser(userName, userPassword, userEmail, userGender, new String[0], false, false);
         EmailGenerator gen = new EmailGenerator();
         gen.sendVerificationEmail(userEmail, userName, uId);
     }
@@ -61,8 +66,9 @@ public class Registrator {
     	int days = Days.daysBetween(new DateTime(registered), new DateTime()).getDays();
     	return days > DAYS_ALIVE;
     }
-    public UUID addUser(String userName, String userPassword, String userEmail, String userGender, String[] countries){
-        return _model.insertUser(userName, userEmail, userPassword, userGender, countries);
+    public UUID addUser(String userName, String userPassword, String userEmail, String userGender, String[] countries, 
+    		boolean verified, boolean notification){
+        return _model.insertUser(userName, userEmail, userPassword, userGender, countries, verified, notification);
     }
     public void updateNotificationCountries(String userEmail, String[] selectedCountries){
     	List<String> toAdd = new ArrayList<>();
