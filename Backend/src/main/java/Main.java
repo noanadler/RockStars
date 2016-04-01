@@ -6,6 +6,7 @@ import java.security.Key;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -14,10 +15,13 @@ import models.Country;
 import models.Model;
 import models.Sql2oModel;
 import models.User;
+import models.Vaccine;
 import spark.Request;
 import spark.Response;
 
-
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.profile.CommonProfile;
@@ -44,7 +48,16 @@ import auth.AuthRequest;
 import auth.AuthenticationHelpers;
 import auth.MySparkWebContext;
 import auth.XHRRequiresAuthenticationFilter;
-
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
+import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
+import ca.uhn.fhir.model.dstu2.resource.Bundle;
+import ca.uhn.fhir.model.dstu2.resource.Immunization;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
+import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
+import ca.uhn.fhir.parser.IParser;
+import ca.uhn.fhir.rest.api.MethodOutcome;
+import ca.uhn.fhir.rest.client.IGenericClient;
 import data.ArrayConverter;
 import data.HerokuDataSource;
 
@@ -62,7 +75,42 @@ public class Main {
         Quirks arraySupport = ArrayConverter.arrayConvertingQuirks(new PostgresQuirks(), true, false);
     	Sql2o sql2o = new Sql2o(new HerokuDataSource(), arraySupport);
         Model model = new Sql2oModel(sql2o);
-               
+        
+        //ng to a DSTU1 compliant server in this example
+        FhirContext ctx = FhirContext.forDstu2();
+        String serverBase = "http://52.72.172.54:8080/fhir/baseDstu2";
+         
+        IGenericClient client = ctx.newRestfulGenericClient(serverBase);
+        User user1 = model.getUserByEmail("forrestbrazeal@yahoo.com");
+        Vaccine vaccine = new Vaccine();
+        vaccine.setCode("123");
+        user1.createFHIRPatientRecord(client);
+        
+        
+        // Perform a search
+        Bundle results = client
+              .search()
+              .forResource(Patient.class)
+              //.where(Patient.NAME.matches().value("Forrest Brazeal"))
+              .where(Patient.RES_ID.matches().value("18956996"))
+              //.where(Immunization.PATIENT.hasId("Patient/14676"))
+              //.where(Immunization.IDENTIFIER.exactly().identifier("12866006"))
+              .returnBundle(ca.uhn.fhir.model.dstu2.resource.Bundle.class)
+              .execute();
+        for (int i = 0; i < results.getEntry().size(); ++i)
+        {
+        	String input = results.getEntry().get(i).getResource().getText().getDivAsString();
+        	System.out.println(input);
+        }
+
+        
+        
+        user1.createFHIRImmunizationRecord(client, vaccine);
+         
+
+ 
+        System.out.println("Found " + results.getEntry().size() + " immunizations");
+	               
         // JWT user auth setup
         final Config config = new AuthFactory(AuthenticationHelpers.JWT_SALT).build();
 
