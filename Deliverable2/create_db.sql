@@ -55,8 +55,9 @@ CREATE TABLE IF NOT EXISTS packing_list_items (
 -- Completed Vaccines
 DROP TABLE IF EXISTS completed_vaccines;
 CREATE TABLE IF NOT EXISTS completed_vaccines (
-    user_id integer,
+    user_id uuid,
     vaccine_id text,
+    vaccinated_date timestamp,
     FOREIGN KEY ( user_id ) REFERENCES users (id),
     FOREIGN KEY ( vaccine_id ) REFERENCES vaccines (name)
 );
