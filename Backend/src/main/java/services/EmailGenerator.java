@@ -20,8 +20,6 @@ import models.User;
 public class EmailGenerator {
 	private static SendGrid _mailer;
 	private static final String _newLineSeparator;
-	private static final String GRID_USER = "app47892308@heroku.com";
-	private static final String GRID_PASS = "apxwsmtc8054";
 	private static final String ME = "doNotReply@SafeTravels.com";
 	private static final String VERIFICATION_TITLE = "Welcome to SafeTravels";
 	private static final String GOODBYE_TITLE = "We're sorry to see you go";
@@ -33,7 +31,7 @@ public class EmailGenerator {
     }
 	
 	static{
-		_mailer = new SendGrid(GRID_USER,GRID_PASS);
+		_mailer = new SendGrid(System.getenv("SENDGRID_USERNAME"),System.getenv("SENDGRID_PASSWORD"));
 		_newLineSeparator = System.getProperty("line.separator");
 	}
 	
