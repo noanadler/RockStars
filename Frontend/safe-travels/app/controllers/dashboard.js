@@ -21,6 +21,21 @@ export default Ember.Controller.extend({
         dataType:'json',
         data: this.get('model').toJSON()
       })
+    },
+    saveVaccine: function(vaccine, vaccinatedDate) {
+      var headers = {}
+      this.get('session').authorize('authorizer:token', (header, token) => {
+        headers[header] = token;
+      });
+
+      Ember.$.ajax({
+        url: ENV.APP.apiUrl + '/vaccine/add',
+        method: 'POST',
+        headers: headers,
+        data: { vaccine: vaccine.get('name'), vaccinatedDate: vaccinatedDate }
+      }).then(function() {
+        vaccine.set('vaccinated', true)
+      });
     }
   }
 });

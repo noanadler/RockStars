@@ -129,6 +129,8 @@ public class Main {
         before("/users", new XHRRequiresAuthenticationFilter(config, "HeaderClient"));
         before("/users/:uuid", new XHRRequiresAuthenticationFilter(config, "HeaderClient"));
         before("/currentuuid", new XHRRequiresAuthenticationFilter(config, "HeaderClient"));
+        before("/vaccine/add", new XHRRequiresAuthenticationFilter(config, "HeaderClient"));
+
         
         /**
          * Sign up a user
@@ -276,19 +278,7 @@ public class Main {
 			res.type("application/json");
         	return json;        	
         });
-        
-        //this protected page is only visible with a valid JWT token
-        get("/testauth", (req, res) -> {          
-        	List<Country> countries = model.getCountries();
-			Gson gson = new Gson();
-			String json = gson.toJson(countries); 
-			
-			res.status(200);
-			res.type("application/json");
-        	return json;
-    		
-        });
-        
+
         get("/country/:name", (req, res) -> {
         	Country country = model.getCountry(req.params("name"));
 			Gson gson = new Gson();
@@ -321,6 +311,17 @@ public class Main {
         	UUID uuid = UUID.fromString(req.params("uuid"));
         	new Registrator().deregisterFromNotifications(uuid, true);
 			res.status(200);
+			res.type("application/json");
+        	return "{ \"success\": true }";
+        }); 
+        
+        
+        post("/vaccine/add", (req, res) -> {
+        	String vaccineName = req.queryParams("vaccine");
+        	String vaccinatedDate = req.queryParams("vaccinatedDate");
+        	System.out.println(vaccineName);
+        	
+        	res.status(200);
 			res.type("application/json");
         	return "{ \"success\": true }";
         });        
