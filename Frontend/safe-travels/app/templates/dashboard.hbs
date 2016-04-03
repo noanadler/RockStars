@@ -79,7 +79,7 @@
        <div class="modal-body">
          <div class="list-group">
            {{#each model.vaccines as |item|}}
-            <a href="#" class="list-group-item">{{item.name}}</a>
+            {{vaccine-row vaccine=item vaccinated=item.vaccinated save='saveVaccine'}}
            {{/each}}
          </div>
        </div>
