@@ -151,8 +151,14 @@ public class Sql2oModel implements Model {
 	
 	@Override
 	public List<String> getCountrySubscribers(String country){
-		return null;
 		//TODO
+		String selectSql = "SELECT emails from country_lists where country=:countryParam";
+        try (Connection conn = sql2o.open()) {
+            List<String> emailaddress = conn.createQuery(selectSql)
+        		.addParameter("countryParam", country)
+        		.executeScalarList(String.class);
+           return emailaddress;     
+         }
 	}
 	
 	@Override
@@ -170,6 +176,13 @@ public class Sql2oModel implements Model {
 	@Override
 	public void updateSubscribers(String country, List<String> email){
 		//TODO
+		String updateSql = "update country_lists set email = :emailParam where country = :countryParam";
+        try (Connection conn = sql2o.open()) {
+         	 conn.createQuery(updateSql)
+         			.addParameter("emailParam", email)
+         			.addParameter("countryParam", country)
+  	                .executeUpdate();
+         }
 	}
 	
 	@Override
@@ -220,12 +233,22 @@ public class Sql2oModel implements Model {
 	@Override
 	public List<String> getDistinctAlertCountries(){
 		//TOOD
-		return null;
+		 String getDistinctsql = "SELECT distinct country from alerts";
+        try (Connection conn = sql2o.open()) {
+            List<String> countries = conn.createQuery(getDistinctsql)
+        		  .executeScalarList(String.class);
+            return countries;            
+        }
 	}
 	
 	@Override
 	public void clearAlerts(){
 		//TODO
+		//Clear all records from the table
+        try (Connection conn = sql2o.open()) {
+             conn.createQuery("delete * from alerts")
+             .executeAndFetch(Alert.class);           
+        }		
 	}
 
 }
