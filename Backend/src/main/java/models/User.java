@@ -9,6 +9,7 @@ import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.resource.Immunization;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
+import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.IGenericClient;
 
@@ -57,7 +58,6 @@ public class User {
     public void createFHIRPatientRecord(IGenericClient client)
     {
         Patient patient = new Patient();
-        String system = "safetravels";
 	    patient.addName().addFamily(name.split(" ")[1]).addGiven(name.split(" ")[0]);
 	    if(gender.toLowerCase().equals("M")){patient.setGender(AdministrativeGenderEnum.MALE);}
 	    else if(gender.toLowerCase().equals("F")){patient.setGender(AdministrativeGenderEnum.FEMALE);}
@@ -67,18 +67,18 @@ public class User {
 	             .conditional()
 	             .where(Patient.NAME.matches().value(name))
 	             .execute();
-	    System.out.println(outcome.getId().getIdPart());
         setFHIRId(outcome.getId().getIdPart());
     }
-    public void createFHIRImmunizationRecord(IGenericClient client, Vaccine vaccine)
+    public void createFHIRImmunizationRecord(IGenericClient client, Vaccine vaccine, Date date)
     {
         Immunization immunization = new Immunization();
         String system = "safetravels";
-        //immunization.addIdentifier().setSystem("urn:" + system).setValue(UUID.randomUUID().toString());
         immunization.setPatient(new ResourceReferenceDt("Patient/" + fhir_id));
         immunization.setVaccineCode(new CodeableConceptDt(system, vaccine.getCode()));
+        immunization.setReported(true);
+        immunization.setDate(new DateTimeDt(date));
         immunization.setStatus("completed");
-        MethodOutcome outcome = client.create()
+        client.create()
                 .resource(immunization)
                 .execute();
     }

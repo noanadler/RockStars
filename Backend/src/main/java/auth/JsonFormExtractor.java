@@ -3,7 +3,6 @@ package auth;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.http.credentials.UsernamePasswordCredentials;
 import org.pac4j.http.credentials.extractor.Extractor;
-import org.pac4j.http.credentials.extractor.FormExtractor;
 
 public class JsonFormExtractor implements Extractor<UsernamePasswordCredentials> {
 

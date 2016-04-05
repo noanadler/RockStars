@@ -7,17 +7,12 @@ import java.util.List;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
-import org.pac4j.core.context.WebContext;
-import org.pac4j.core.profile.CommonProfile;
-import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.core.util.CommonHelper;
 import org.pac4j.sparkjava.RequiresAuthenticationFilter;
-import org.pac4j.sparkjava.SparkWebContext;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWEObject;
-import com.nimbusds.jose.KeyLengthException;
 import com.nimbusds.jose.crypto.DirectDecrypter;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -41,6 +36,7 @@ public class XHRRequiresAuthenticationFilter extends RequiresAuthenticationFilte
 
     }	
 	
+	@SuppressWarnings("rawtypes")
 	@Override
     public void handle(Request request, Response response) {
 		if(!request.requestMethod().equals("OPTIONS")) {

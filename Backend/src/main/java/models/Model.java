@@ -8,6 +8,7 @@ public interface Model {
 	Country getCountry(String countryId);
 	List<Country> getCountries();
 	List<User> getUsers();
+	Vaccine getVaccineByName(String vaccineName);
 	List<Vaccine> getUserVaccines(User user);
 	List<Vaccine> getCountryVaccines(Country country);
 	List<PackingListItem> getCountryPackingListItems(Country country);

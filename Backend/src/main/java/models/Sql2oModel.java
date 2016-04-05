@@ -1,19 +1,14 @@
 package models;
 
 import java.util.Date;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.UUID;
-
-import javax.print.attribute.standard.PrinterLocation;
 
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 
 public class Sql2oModel implements Model {
 	private Sql2o sql2o;
-	private DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 	
     public Sql2oModel(Sql2o sql2o) {
         this.sql2o = sql2o;
@@ -53,6 +48,15 @@ public class Sql2oModel implements Model {
             return vaccines;
         }
 	}	
+	
+	public Vaccine getVaccineByName(String vaccineName){
+		try (Connection conn = sql2o.open()) {
+			List<Vaccine> vaccines = conn.createQuery("select * from vaccines where name = '" + vaccineName + "'")  
+	                .executeAndFetch(Vaccine.class);
+			Vaccine vaccine = vaccines.get(0);
+	        return vaccine;
+		}
+	}
 
 	@Override
 	public List<Vaccine> getCountryVaccines(Country country) {

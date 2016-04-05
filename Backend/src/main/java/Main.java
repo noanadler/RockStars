@@ -3,13 +3,11 @@ import static spark.Spark.*;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
-import java.security.Key;
+import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 
@@ -17,23 +15,10 @@ import models.Country;
 import models.Model;
 import models.Sql2oModel;
 import models.User;
-import models.Vaccine;
-import spark.Request;
-import spark.Response;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import services.Registrator;
-import spark.Request;
-import spark.Response;
 import org.pac4j.core.config.Config;
-import org.pac4j.core.context.session.SessionStore;
-import org.pac4j.core.profile.CommonProfile;
-import org.pac4j.core.profile.ProfileManager;
-import org.pac4j.core.profile.UserProfile;
 import org.pac4j.core.util.CommonHelper;
-import org.pac4j.jwt.profile.JwtGenerator;
 import org.sql2o.Sql2o;
 import org.sql2o.quirks.PostgresQuirks;
 import org.sql2o.quirks.Quirks;
@@ -56,14 +41,6 @@ import auth.AuthenticationHelpers;
 import auth.MySparkWebContext;
 import auth.XHRRequiresAuthenticationFilter;
 import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
-import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
-import ca.uhn.fhir.model.dstu2.resource.Bundle;
-import ca.uhn.fhir.model.dstu2.resource.Immunization;
-import ca.uhn.fhir.model.dstu2.resource.Patient;
-import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
-import ca.uhn.fhir.parser.IParser;
-import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.IGenericClient;
 import data.ArrayConverter;
 import data.HerokuDataSource;
@@ -84,39 +61,9 @@ public class Main {
         Model model = new Sql2oModel(sql2o);
         Registrator registrator = new Registrator();
         
-        //ng to a DSTU1 compliant server in this example
         FhirContext ctx = FhirContext.forDstu2();
         String serverBase = "http://52.72.172.54:8080/fhir/baseDstu2";        
         IGenericClient client = ctx.newRestfulGenericClient(serverBase);
-        /*User user1 = model.getUserByEmail("forrestbrazeal@yahoo.com");
-        Vaccine vaccine = new Vaccine();
-        vaccine.setCode("123");
-        user1.createFHIRPatientRecord(client);*/
-        
-        
-        // Perform a search
-        Bundle results = client
-              .search()
-              .forResource(Patient.class)
-              //.where(Patient.NAME.matches().value("Forrest Brazeal"))
-              .where(Patient.RES_ID.matches().value("18956996"))
-              //.where(Immunization.PATIENT.hasId("Patient/14676"))
-              //.where(Immunization.IDENTIFIER.exactly().identifier("12866006"))
-              .returnBundle(ca.uhn.fhir.model.dstu2.resource.Bundle.class)
-              .execute();
-        for (int i = 0; i < results.getEntry().size(); ++i)
-        {
-        	String input = results.getEntry().get(i).getResource().getText().getDivAsString();
-        	System.out.println(input);
-        }
-
-        
-        
-        //user1.createFHIRImmunizationRecord(client, vaccine);
-         
-
- 
-        System.out.println("Found " + results.getEntry().size() + " immunizations");
 	               
         // JWT user auth setup
         final Config config = new AuthFactory(AuthenticationHelpers.JWT_SALT).build();
@@ -253,7 +200,6 @@ public class Main {
 			        userEmail = claimSet.getSubject().replaceAll("UserProfile#", "");
 	                System.out.println(userEmail);
 				} catch (ParseException | JOSEException | UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
         	Gson gson = new Gson();
@@ -266,8 +212,7 @@ public class Main {
         });
         
      // Return user by ID
-        get("/users/:uuid", (req, res) -> {
-        	final MySparkWebContext context = new MySparkWebContext(req, res, config.getSessionStore()); 
+        get("/users/:uuid", (req, res) -> { 
         	Gson gson = new Gson();
         	UUID uuid = UUID.fromString(req.params("uuid"));
         	User user = model.getUserByUid(uuid);
@@ -319,7 +264,18 @@ public class Main {
         post("/vaccine/add", (req, res) -> {
         	String vaccineName = req.queryParams("vaccine");
         	String vaccinatedDate = req.queryParams("vaccinatedDate");
-        	System.out.println(vaccineName);
+        	UUID uuid = UUID.fromString(req.queryParams("vaccinatedUser"));
+        	User user = model.getUserByUid(uuid);
+        	DateFormat format = new SimpleDateFormat("yyyy-mm-dd");
+        	Date date = format.parse(vaccinatedDate);
+        	try{
+	        	model.addVaccineToUser(vaccineName, uuid, date);
+	        	user.createFHIRImmunizationRecord(client, model.getVaccineByName(vaccineName), date);
+        	}catch (Exception e){
+        		res.status(500);
+    			res.type("application/json");
+            	return "{ \"success\": false }";
+        	}
         	
         	res.status(200);
 			res.type("application/json");
