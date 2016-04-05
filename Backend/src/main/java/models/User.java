@@ -1,6 +1,7 @@
 package models;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
@@ -21,7 +22,9 @@ public class User {
     Date registered_at;
     Date birthdate;
     String[] countries;
-    boolean verified;
+    List<Vaccine> vaccines;
+
+	boolean verified;
     boolean notification;
 
     public UUID getId(){ return id;}
@@ -78,5 +81,12 @@ public class User {
                 .resource(immunization)
                 .execute();
     }
+    
+    public List<Vaccine> getVaccines() {
+		return vaccines;
+	}
+	public void setVaccines(List<Vaccine> vaccines) {
+		this.vaccines = vaccines;
+	}
 
 }
