@@ -30,9 +30,14 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
       }).forEach(function(c) {
         route.get('controller.model.user').addCountry(c);
       })*/
-      route.get('controller.model.user').set('countries', route.get('controller.countries').map(function(c) {
-        return { country: c.id };
-      }));
+      //route.get('controller.model.user').set('countries', route.get('controller.countries').map(function(c) {
+      //  return Ember.Object({ country: c.id, id: c.id, text: c.text});
+      //}));
+      var json = route.get('controller.model.user').asJSON();
+      json.countries = route.get('controller.countries').map(function(c) {
+        return c.id;
+      });
+      console.log(json)
 
       Ember.$.ajax({
         url: ENV.APP.apiUrl + '/users/' + this.get('session.data.user'),
@@ -40,10 +45,11 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
         headers: headers,
         contentType: "application/json; charset=utf-8",
         dataType:'json',
-        data: this.get('controller.model.user').toJSON()
+        data: JSON.stringify(json),
       }).then(function() {
-        route.get('user').set('currentUser', null);
-        route.transitionTo('dashboard')
+        route.get('user').loadUser().then(function() {
+          route.transitionTo('dashboard')
+        });
       })
     }
   }
