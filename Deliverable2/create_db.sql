@@ -42,6 +42,7 @@ DROP TABLE IF EXISTS vaccines CASCADE;
 CREATE TABLE IF NOT EXISTS vaccines (
     name text PRIMARY KEY,
     category text,
+    code int,
     notes text
 );
 
