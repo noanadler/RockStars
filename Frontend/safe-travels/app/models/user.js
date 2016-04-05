@@ -69,6 +69,20 @@ var User = Ember.Object.extend({
 
     return JSON.stringify(json);
   },
+  asJSON: function() {
+    var json = {
+      email: this.get('email'),
+      gender: this.get('gender'),
+      notification: this.get('notification'),
+      name: this.get('name')
+    }
+
+    if(this.get('password')) {
+      json.password = this.get('password');
+    }
+
+    return json
+  },
   addCountry(country) {
     if(!this.get('countries').mapBy('country').contains(country.country)) {
       var userCountry = Ember.Object.create(country)
