@@ -22,6 +22,7 @@ import data.HerokuDataSource;
 
 public class DataImporter {
 
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		CSVReader reader;
 		Map<String, String> countryIds;
@@ -62,7 +63,6 @@ public class DataImporter {
 		    	 String recommendedVaccineJSON = nextLine[1];
 		    	 String fullCountryName = nextLine[2];
 		    	 String countryKey = countryIds.get(nextLine[2]);
-		    	 String countryUrl = countryUrls.get(nextLine[2]);
 		    	 
 		    	 // store the names to insert with the country into travel information
 		    	 List<String> packingListItemNames = new ArrayList<String>();

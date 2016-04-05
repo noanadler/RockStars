@@ -3,7 +3,6 @@ package auth;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,15 +10,10 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
-import org.pac4j.core.config.Config;
-import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.jwt.profile.JwtGenerator;
 
 import com.google.gson.Gson;
-
-import spark.Request;
-import spark.Response;
 
 public class AuthenticationHelpers {
 	public final static String JWT_SALT = "12341234123412341234123412341234";
@@ -57,6 +51,7 @@ public class AuthenticationHelpers {
     		return myProfile;
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static String getUserToken(UserProfile p)
 	{
 		JwtGenerator generator = new JwtGenerator(AuthenticationHelpers.JWT_SALT);

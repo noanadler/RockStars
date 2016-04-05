@@ -1,19 +1,14 @@
 package models;
 
 import java.util.Date;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.UUID;
-
-import javax.print.attribute.standard.PrinterLocation;
 
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 
 public class Sql2oModel implements Model {
 	private Sql2o sql2o;
-	private DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 	
     public Sql2oModel(Sql2o sql2o) {
         this.sql2o = sql2o;
@@ -41,6 +36,26 @@ public class Sql2oModel implements Model {
 	                .executeAndFetch(Country.class);
 			return countries;
         }
+	}
+	
+	@Override
+	public List<Vaccine> getUserVaccines(User user) {
+        try (Connection conn = sql2o.open()) {
+
+            List<Vaccine> vaccines = conn.createQuery("select vaccines.* from vaccines, completed_vaccines where vaccines.name=completed_vaccines.vaccine_id AND user_id=:uid")  
+    				.addParameter("uid", user.getId())
+                    .executeAndFetch(Vaccine.class);
+            return vaccines;
+        }
+	}	
+	
+	public Vaccine getVaccineByName(String vaccineName){
+		try (Connection conn = sql2o.open()) {
+			List<Vaccine> vaccines = conn.createQuery("select * from vaccines where name = '" + vaccineName + "'")  
+	                .executeAndFetch(Vaccine.class);
+			Vaccine vaccine = vaccines.get(0);
+	        return vaccine;
+		}
 	}
 
 	@Override
@@ -79,6 +94,7 @@ public class Sql2oModel implements Model {
 			List<User> users = conn.createQuery("select * from users where id = '" + uId + "'")  
 	                .executeAndFetch(User.class);
 			User user = users.get(0);
+			user.setVaccines(getUserVaccines(user));
 			return user;
 		}
 	}
@@ -91,6 +107,7 @@ public class Sql2oModel implements Model {
 			if(users.size() > 0)
 			{
 				User user = users.get(0);
+				user.setVaccines(getUserVaccines(user));
 				return user;
 			}else
 			{
@@ -136,6 +153,19 @@ public class Sql2oModel implements Model {
   	                .executeUpdate();
          }
 	}
+	
+	@Override
+	public void addVaccineToUser(String vaccineName, UUID userId, Date date) {
+		String insertSql = "insert into completed_vaccines (user_id, vaccine_id, vaccinated_date) values (:uuid, :vaccine, :date)";
+        try (Connection conn = sql2o.open()) {
+        	 conn.createQuery(insertSql)
+        			.addParameter("uuid", userId)
+        			.addParameter("vaccine", vaccineName)
+        			.addParameter("date", date)
+ 	                .executeUpdate();
+        }
+	}
+
 	
 	@Override
 	public boolean isSubscribedToNotifications(UUID uId){

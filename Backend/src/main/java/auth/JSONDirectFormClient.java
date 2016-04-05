@@ -15,13 +15,9 @@
  */
 package auth;
 
-import org.pac4j.core.client.ClientType;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.util.CommonHelper;
 import org.pac4j.http.client.direct.DirectFormClient;
-import org.pac4j.http.credentials.UsernamePasswordCredentials;
 import org.pac4j.http.credentials.authenticator.UsernamePasswordAuthenticator;
-import org.pac4j.http.credentials.extractor.FormExtractor;
 import org.pac4j.http.profile.creator.ProfileCreator;
 
 public class JSONDirectFormClient extends DirectFormClient {
@@ -41,7 +37,8 @@ public class JSONDirectFormClient extends DirectFormClient {
         setAuthenticator(usernamePasswordAuthenticator);
     }
 
-    public JSONDirectFormClient(final UsernamePasswordAuthenticator usernamePasswordAuthenticator,
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public JSONDirectFormClient(final UsernamePasswordAuthenticator usernamePasswordAuthenticator,
                             final ProfileCreator profileCreator) {
         setAuthenticator(usernamePasswordAuthenticator);
         setProfileCreator(profileCreator);
