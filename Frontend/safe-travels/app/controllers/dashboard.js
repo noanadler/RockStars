@@ -32,7 +32,7 @@ export default Ember.Controller.extend({
         url: ENV.APP.apiUrl + '/vaccine/add',
         method: 'POST',
         headers: headers,
-        data: { vaccine: vaccine.get('name'), vaccinatedDate: vaccinatedDate, uuid: this.get('model.id') }
+        data: { vaccine: vaccine.get('name'), vaccinatedDate: vaccinatedDate.toISOString().slice(0,10), uuid: this.get('model.id') }
       }).then(function() {
         vaccine.set('vaccinated', true)
       });
