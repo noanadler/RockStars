@@ -72,8 +72,9 @@ public class User {
         Immunization immunization = new Immunization();
         String system = "safetravels";
         //immunization.addIdentifier().setSystem("urn:" + system).setValue(UUID.randomUUID().toString());
-        immunization.setPatient(new ResourceReferenceDt("Patient/18956996"));
+        immunization.setPatient(new ResourceReferenceDt("Patient/" + fhir_id));
         immunization.setVaccineCode(new CodeableConceptDt(system, vaccine.getCode()));
+        immunization.setStatus("completed");
         MethodOutcome outcome = client.create()
                 .resource(immunization)
                 .execute();
