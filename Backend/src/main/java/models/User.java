@@ -59,8 +59,8 @@ public class User {
     {
         Patient patient = new Patient();
 	    patient.addName().addFamily(name.split(" ")[1]).addGiven(name.split(" ")[0]);
-	    if(gender.toLowerCase().equals("M")){patient.setGender(AdministrativeGenderEnum.MALE);}
-	    else if(gender.toLowerCase().equals("F")){patient.setGender(AdministrativeGenderEnum.FEMALE);}
+	    if(gender != null && gender.toLowerCase().equals("M")){patient.setGender(AdministrativeGenderEnum.MALE);}
+	    else if(gender != null && gender.toLowerCase().equals("F")){patient.setGender(AdministrativeGenderEnum.FEMALE);}
 	    else{patient.setGender(AdministrativeGenderEnum.OTHER);}
 	    MethodOutcome outcome = client.create()
 	             .resource(patient)
