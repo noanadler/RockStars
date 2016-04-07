@@ -40,7 +40,7 @@ public class Registrator {
         return uId;
     }
     public boolean uIdExists(UUID uId){
-    	return _model.getUserByUid(uId) == null;
+    	return _model.getUserByUid(uId) != null;
     }
     public boolean isSubscribedToNotifications(UUID uId){
     	User user = _model.getUserByUid(uId);
