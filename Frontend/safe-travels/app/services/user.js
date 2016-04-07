@@ -21,6 +21,7 @@ export default Ember.Service.extend({
     }).then(function(response) {
       var user = User.create();
       user.set('countries', []);
+      user.set('completedVaccines', response.vaccines)
 
       if(response.countries) {
         response.countries.forEach(function(country) {

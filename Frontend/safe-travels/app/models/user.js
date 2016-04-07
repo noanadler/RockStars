@@ -11,6 +11,7 @@ var User = Ember.Object.extend({
   name: null,
   countries: [],
   alerts: [],
+  completedVaccines: [],
   countryNames: Ember.computed('countries.[]', function() {
     return this.get('countries').mapBy('full_name');
   }),

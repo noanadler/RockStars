@@ -262,9 +262,9 @@ public class Main {
         
         
         post("/vaccine/add", (req, res) -> {
-        	String vaccineName = req.queryParams("vaccine");
+        	String vaccineName = req.queryParams("vaccine") + " "; // hack to fix malformed data
         	String vaccinatedDate = req.queryParams("vaccinatedDate");
-        	UUID uuid = UUID.fromString(req.queryParams("vaccinatedUser"));
+        	UUID uuid = UUID.fromString(req.queryParams("uuid"));
         	User user = model.getUserByUid(uuid);
         	DateFormat format = new SimpleDateFormat("yyyy-mm-dd");
         	Date date = format.parse(vaccinatedDate);
@@ -272,6 +272,7 @@ public class Main {
 	        	model.addVaccineToUser(vaccineName, uuid, date);
 	        	user.createFHIRImmunizationRecord(client, model.getVaccineByName(vaccineName), date);
         	}catch (Exception e){
+        		System.out.println(e.getMessage());
         		res.status(500);
     			res.type("application/json");
             	return "{ \"success\": false }";

@@ -1,5 +1,5 @@
 <i class={{if vaccinated "fa fa-check-square-o" "fa fa-square-o" }} {{action 'selectVaccine'}}></i>
-<span{{action 'selectVaccine'}}>{{vaccine.name}}</span>
+<span{{action 'selectVaccine'}}>{{vaccine.name}}{{#if vaccinated}} - {{vaccinatedOn}}{{/if}}</span>
 {{#if savingVaccine}}
   {{bootstrap-datepicker placeholder="When?" class="form-control" value=vaccineDate bubbles=false}}
   <button {{action 'cancel'}}>Cancel</button><button {{action 'save'}}>Save Vaccine</button>

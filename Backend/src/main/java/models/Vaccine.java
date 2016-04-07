@@ -5,6 +5,7 @@ public class Vaccine {
 	String category;
 	String notes;
 	String code;
+	String vaccinated_date;
 	
 	public String getName() {
 		return name;

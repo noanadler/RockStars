@@ -42,7 +42,7 @@ public class Sql2oModel implements Model {
 	public List<Vaccine> getUserVaccines(User user) {
         try (Connection conn = sql2o.open()) {
 
-            List<Vaccine> vaccines = conn.createQuery("select vaccines.* from vaccines, completed_vaccines where vaccines.name=completed_vaccines.vaccine_id AND user_id=:uid")  
+            List<Vaccine> vaccines = conn.createQuery("select vaccines.*, to_char(completed_vaccines.vaccinated_date, 'DD/MM/YYYY') as vaccinated_date from vaccines, completed_vaccines where vaccines.name=completed_vaccines.vaccine_id AND user_id=:uid")  
     				.addParameter("uid", user.getId())
                     .executeAndFetch(Vaccine.class);
             return vaccines;
