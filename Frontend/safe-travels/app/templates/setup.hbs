@@ -4,6 +4,13 @@
   </div>
 </div>
 <form>
+  {{#if error}}
+  <div class="alert alert-danger" role="alert">
+    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+    <span class="sr-only">Error:</span>
+    You must select at least one country
+  </div>
+  {{/if}}
   <div class="row">
     <div class="col-sm-1 col-xs-12">
        <i class="fa fa-globe" style='font-size: 100px; font-size:7vw'></i>

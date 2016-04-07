@@ -23,7 +23,9 @@ export default Ember.Controller.extend({
             controller.transitionToRoute('setup');
           });
         });
-      });
+      }).catch((reason) => {
+        this.set('error', true);
+      });;
     }
   }
 });

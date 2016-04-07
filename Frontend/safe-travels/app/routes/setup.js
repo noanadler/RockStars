@@ -19,38 +19,34 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
   },
   actions: {
     submit() {
-      var headers = {}
       var route = this;
-      this.get('session').authorize('authorizer:token', (header, token) => {
-        headers[header] = token;
-      });
-
-      /*this.get('controller.model.countries').filter(function(c) {
-        return route.get('controller.countries').mapBy('id').contains(c.get('id'))
-      }).forEach(function(c) {
-        route.get('controller.model.user').addCountry(c);
-      })*/
-      //route.get('controller.model.user').set('countries', route.get('controller.countries').map(function(c) {
-      //  return Ember.Object({ country: c.id, id: c.id, text: c.text});
-      //}));
-      var json = route.get('controller.model.user').asJSON();
-      json.countries = route.get('controller.countries').map(function(c) {
-        return c.id;
-      });
-      console.log(json)
-
-      Ember.$.ajax({
-        url: ENV.APP.apiUrl + '/users/' + this.get('session.data.user'),
-        method: 'PUT',
-        headers: headers,
-        contentType: "application/json; charset=utf-8",
-        dataType:'json',
-        data: JSON.stringify(json),
-      }).then(function() {
-        route.get('user').loadUser().then(function() {
-          route.transitionTo('dashboard')
+      if(route.get('controller.countries.length')) {
+        var headers = {}
+        route.set('controller.error', false);
+        this.get('session').authorize('authorizer:token', (header, token) => {
+          headers[header] = token;
         });
-      })
+
+        var json = route.get('controller.model.user').asJSON();
+        json.countries = route.get('controller.countries').map(function(c) {
+          return c.id;
+        });
+
+        Ember.$.ajax({
+          url: ENV.APP.apiUrl + '/users/' + this.get('session.data.user'),
+          method: 'PUT',
+          headers: headers,
+          contentType: "application/json; charset=utf-8",
+          dataType:'json',
+          data: JSON.stringify(json),
+        }).then(function() {
+          route.get('user').loadUser().then(function() {
+            route.transitionTo('dashboard')
+          });
+        })
+      } else {
+        route.set('controller.error', true);
+      }
     }
   }
 });
