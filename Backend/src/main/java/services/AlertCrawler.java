@@ -22,6 +22,7 @@ import models.Alert;
 import models.Sql2oModel;
 
 public class AlertCrawler {
+	
     @SuppressWarnings("rawtypes")
 	public static HashMap<String, ArrayList<Alert>> crawl() {
 		String format = "MMMM dd, yyyy";

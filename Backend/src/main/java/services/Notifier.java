@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+
 import org.sql2o.Sql2o;
 import data.HerokuDataSource;
 import models.Alert;

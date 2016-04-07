@@ -276,7 +276,7 @@ public class Sql2oModel implements Model {
 		//TODO
 		//Clear all records from the table
         try (Connection conn = sql2o.open()) {
-             conn.createQuery("delete * from alerts")
+             conn.createQuery("delete from alerts")
              .executeAndFetch(Alert.class);           
         }		
 	}
