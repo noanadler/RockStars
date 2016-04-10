@@ -156,6 +156,7 @@ public class Main {
         	Gson gson = new Gson();
         	UUID uuid = UUID.fromString(req.params("uuid"));
         	User user = model.getUserByUid(uuid);
+        	boolean receivedNotification = user.getNotifications();
         	AuthRequest loginParams = gson.fromJson(context.getRequestBody(), AuthRequest.class);
         	if(user == null)
         	{
@@ -168,9 +169,13 @@ public class Main {
         	if(loginParams.email != null){user.setEmail(loginParams.email);}
         	if(loginParams.password != null){user.setHashedPassword(AuthenticationHelpers.hashPassword(loginParams.password.toCharArray()));}
         	if(loginParams.gender != null){user.setGender(loginParams.gender);}
-        	if(loginParams.countries != null){user.setCountries(loginParams.countries);}
         	if(loginParams.notification != null){user.setNotifications(Boolean.valueOf(loginParams.notification));}
         	model.updateUser(user);
+        	
+        	if(loginParams.countries != null) {
+        		new Registrator().updateNotificationCountries(user.getEmail(), loginParams.countries);
+        	}
+        	
         	String json = gson.toJson(user);
         	//3. Return token
 			res.status(200);

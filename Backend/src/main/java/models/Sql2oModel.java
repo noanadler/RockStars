@@ -2,6 +2,7 @@ package models;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.UUID;
@@ -186,7 +187,7 @@ public class Sql2oModel implements Model {
             List<String> addresses = conn.createQuery(selectSql)
         		.addParameter("countryParam", country)
         		.executeAndFetch(String.class);
-           return addresses.size() == 0? addresses : Arrays.asList(addresses.get(0).split(";"));     
+           return addresses.size() == 0? addresses : new LinkedList<String>(Arrays.asList(addresses.get(0).split(";")));     
          }
 	}
 	
@@ -203,14 +204,27 @@ public class Sql2oModel implements Model {
 	
 	@Override
 	public void updateSubscribers(String country, List<String> emails){
-		String updateSql = "update country_lists set email = :emailParam where country = :countryParam";
-		String emailsStr = String.join(";", emails);
-		try (Connection conn = sql2o.open()) {
-         	 conn.createQuery(updateSql)
-         			.addParameter("emailParam", emailsStr)
-         			.addParameter("countryParam", country)
-  	                .executeUpdate();
-         }
+		String selectSql = "SELECT count(*) as count from country_lists where country=:countryParam";
+        try (Connection conn = sql2o.open()) {
+            Integer count = conn.createQuery(selectSql)
+        		.addParameter("countryParam", country)
+        		.executeScalar(Integer.class);
+    		String emailsStr = String.join(";", emails);
+            
+            if(count == 0) {
+        		String updateSql = "insert into country_lists (emails, country) values (:emailParam, :countryParam)";
+	         	conn.createQuery(updateSql)
+	         			.addParameter("emailParam", emailsStr)
+	         			.addParameter("countryParam", country)
+	  	                .executeUpdate();                	
+            } else {
+        		String updateSql = "update country_lists set emails = :emailParam where country = :countryParam";
+	         	conn.createQuery(updateSql)
+	         			.addParameter("emailParam", emailsStr)
+	         			.addParameter("countryParam", country)
+	  	                .executeUpdate();       	
+            }
+        }
 	}
 	
 	@Override

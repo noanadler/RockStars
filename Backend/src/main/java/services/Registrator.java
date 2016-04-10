@@ -122,6 +122,8 @@ public class Registrator {
     	else if(subs.contains(userEmail)){
     		return;
     	}
+    	System.out.println(userEmail);
+    	System.out.println(subs);
     	subs.add(userEmail);
     	_model.updateSubscribers(country, subs);
     }
