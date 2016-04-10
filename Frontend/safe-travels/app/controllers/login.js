@@ -24,7 +24,7 @@ export default Ember.Controller.extend({
           });
         });
       }).catch((reason) => {
-        this.set('error', true);
+        this.set('error', reason);
       });;
     }
   }

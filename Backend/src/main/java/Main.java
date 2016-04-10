@@ -125,13 +125,19 @@ public class Main {
         	{
         		res.status(403);
     			res.type("application/json");
-            	return "No such user";
+            	return "Email or password incorrect";
         	}
         	if(!AuthenticationHelpers.checkPassword(loginParams.password, user.getHashedPassword()))
         	{
         		res.status(401);
     			res.type("application/json");
-            	return "Invalid password";
+            	return "Email or password incorrect";
+        	}
+        	
+        	if(!user.getVerified()) {
+        		res.status(401);
+    			res.type("application/json");
+            	return "Sorry, you are not yet verified";
         	}
         	//2. Generate user profile
         	String token = AuthenticationHelpers.getUserToken(AuthenticationHelpers.createUserProfile(loginParams));

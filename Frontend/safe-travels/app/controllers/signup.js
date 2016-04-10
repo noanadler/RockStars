@@ -13,24 +13,14 @@ export default Ember.Controller.extend({
         controller = this;
 
       if(!credentials.email || !credentials.password || !credentials.name) {
-        this.set('error', true);
+        this.set('error', "All fields are required");
       } else {
+        console.log('signing up');
         Ember.$.post(ENV.APP.apiUrl + '/signup', JSON.stringify(credentials)).then(function() {
-          session.authenticate(authenticator, { identification: credentials.email, password: credentials.password }).then(function() {
-            //authenticated
-            session.authorize('authorizer:token', (header, token) => {
-              var headers = {}
-              headers[header] = token;
-
-              Ember.$.ajax({
-                url: ENV.APP.apiUrl + '/currentuuid',
-                headers: headers
-              }).then(function(data) {
-                session.set('data.user', data );
-                controller.transitionToRoute('setup');
-              });
-            });
-          });
+          console.log('signed up');
+          controller.set('success', true);
+        }, function(response) {
+          controller.set('error', response.responseText);
         });
       }
     }

@@ -5,6 +5,10 @@
 </div>
 <div class="row">
   <div class="col-xs-12">
-    <p>Your email has been verified!  {{#link-to 'setup'}}Setup your trip{{/link-to}}</p>
+    {{#if model}}
+      <p>Your email has been verified!  {{#link-to 'setup'}}Click here to login and setup your trip{{/link-to}}</p>
+    {{else}}
+      <p>There was a problem verifying your email.</p>
+    {{/if}}
   </div>
 </div>
