@@ -10,6 +10,14 @@ public class Alert {
 	Date started_at;
 	Date ended_at;
 	
+	public int getId(){
+		return id;
+	}
+	
+	public void setId(int id){
+		this.id = id;
+	}
+	
 	public String getCountry_id(){
 		return country_id;
 	}

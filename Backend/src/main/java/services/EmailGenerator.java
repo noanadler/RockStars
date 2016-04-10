@@ -9,9 +9,12 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.sql2o.Sql2o;
+import org.sql2o.quirks.PostgresQuirks;
+import org.sql2o.quirks.Quirks;
 
 import com.sendgrid.*;
 
+import data.ArrayConverter;
 import data.HerokuDataSource;
 import models.Alert;
 import models.Sql2oModel;
@@ -27,7 +30,8 @@ public class EmailGenerator {
 	private Sql2oModel _model;
     
     public EmailGenerator(){
-    	_model = new Sql2oModel(new Sql2o(new HerokuDataSource()));
+    	Quirks arraySupport = ArrayConverter.arrayConvertingQuirks(new PostgresQuirks(), true, false);
+    	_model = new Sql2oModel(new Sql2o(new HerokuDataSource(), arraySupport));
     }
 	
 	static{
@@ -75,8 +79,8 @@ public class EmailGenerator {
 			builder.append(country + ":" + _newLineSeparator);
 			builder.append("----------"+ _newLineSeparator + _newLineSeparator);
 			for(Alert alert : alerts){
-				builder.append("Alert title: " + alert.getTitle() + _newLineSeparator);
-				builder.append("Alert summary: " + alert.getDescription() + _newLineSeparator);
+				builder.append("Alert title: " + alert.getTitle() + _newLineSeparator + _newLineSeparator);
+				builder.append("Alert summary: " + alert.getDescription() + _newLineSeparator + _newLineSeparator);
 		        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
 		        String getStarted_atStr = fmt.print(new DateTime(alert.getStarted_at()));
 				builder.append("Alert date: " + getStarted_atStr + _newLineSeparator);

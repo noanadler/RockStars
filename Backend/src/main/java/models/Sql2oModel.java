@@ -1,7 +1,9 @@
 package models;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.UUID;
 
 import org.sql2o.Connection;
@@ -102,7 +104,8 @@ public class Sql2oModel implements Model {
 	@Override
 	public User getUserByEmail(String email){
 		try (Connection conn = sql2o.open()) {
-			List<User> users = conn.createQuery("select * from users where email = '" + email + "'")  
+			String userQuery = "select * from users where email = '" + email + "'";
+			List<User> users = conn.createQuery(userQuery)  
 	                .executeAndFetch(User.class);
 			if(users.size() > 0)
 			{
@@ -120,7 +123,6 @@ public class Sql2oModel implements Model {
 	@Override
 	public UUID insertUser(String name, String email, String password, String gender, String[] countries, 
 			boolean verified, boolean notification){
-		//TODO
 		String insertSql = 
 				"insert into users(id, name, email, password, gender, countries, registered_at, verified, notification) " +
 				"values (:uidParam, :nameParam, :emailParam, :passwordParam, :genderParam,"
@@ -145,7 +147,6 @@ public class Sql2oModel implements Model {
 	
 	@Override
 	public void setUserVerified(UUID uId){
-		//TODO
 		String updateSql = "update users set verified = TRUE where id = :uIdParam";
         try (Connection conn = sql2o.open()) {
          	 conn.createQuery(updateSql)
@@ -169,7 +170,6 @@ public class Sql2oModel implements Model {
 	
 	@Override
 	public boolean isSubscribedToNotifications(UUID uId){
-		//TODO
         try (Connection conn = sql2o.open()) {
         	List<User> users = conn.createQuery("select notifications from users where id = :uIdParam")
        			 	.addParameter("uIdParam", uId)
@@ -181,19 +181,17 @@ public class Sql2oModel implements Model {
 	
 	@Override
 	public List<String> getCountrySubscribers(String country){
-		//TODO
 		String selectSql = "SELECT emails from country_lists where country=:countryParam";
         try (Connection conn = sql2o.open()) {
-            List<String> emailaddress = conn.createQuery(selectSql)
+            List<String> addresses = conn.createQuery(selectSql)
         		.addParameter("countryParam", country)
-        		.executeScalarList(String.class);
-           return emailaddress;     
+        		.executeAndFetch(String.class);
+           return addresses.size() == 0? addresses : Arrays.asList(addresses.get(0).split(";"));     
          }
 	}
 	
 	@Override
 	public void setNotificationsStatus(UUID uId, boolean enable){
-		//TODO
 		String updateSql = "update users set notifications = :enableParam where id = :uIdParam";
         try (Connection conn = sql2o.open()) {
          	 conn.createQuery(updateSql)
@@ -204,12 +202,12 @@ public class Sql2oModel implements Model {
 	}
 	
 	@Override
-	public void updateSubscribers(String country, List<String> email){
-		//TODO
+	public void updateSubscribers(String country, List<String> emails){
 		String updateSql = "update country_lists set email = :emailParam where country = :countryParam";
-        try (Connection conn = sql2o.open()) {
+		String emailsStr = String.join(";", emails);
+		try (Connection conn = sql2o.open()) {
          	 conn.createQuery(updateSql)
-         			.addParameter("emailParam", email)
+         			.addParameter("emailParam", emailsStr)
          			.addParameter("countryParam", country)
   	                .executeUpdate();
          }
@@ -217,7 +215,6 @@ public class Sql2oModel implements Model {
 	
 	@Override
 	public void updateUser(User user){
-		//TODO
 		String updateSql = 
 				"update users SET name = :nameParam, email = :emailParam, password = :passwordParam, gender = :genderParam, countries = :countriesParam, verified = :verifiedParam, "
 				+ "notification = :notificationParam where id = :uidParam";
@@ -238,7 +235,6 @@ public class Sql2oModel implements Model {
 	
 	@Override
 	public void updateFhirId(User user){
-		//TODO
 		String updateSql = 
 				"update users SET fhir_id = :fhirParam where id = :uidParam";
 			
@@ -262,22 +258,19 @@ public class Sql2oModel implements Model {
 	
 	@Override
 	public List<String> getDistinctAlertCountries(){
-		//TOOD
-		 String getDistinctsql = "SELECT distinct country from alerts";
+		 String getDistinctsql = "SELECT distinct country_id from alerts";
         try (Connection conn = sql2o.open()) {
             List<String> countries = conn.createQuery(getDistinctsql)
-        		  .executeScalarList(String.class);
-            return countries;            
+        		  .executeAndFetch(String.class);
+            return countries;        
         }
 	}
 	
 	@Override
 	public void clearAlerts(){
-		//TODO
 		//Clear all records from the table
         try (Connection conn = sql2o.open()) {
-             conn.createQuery("delete from alerts")
-             .executeAndFetch(Alert.class);           
+             conn.createQuery("delete from alerts").executeUpdate();
         }		
 	}
 
