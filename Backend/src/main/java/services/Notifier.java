@@ -5,7 +5,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.sql2o.QuirksMode;
 import org.sql2o.Sql2o;
+import org.sql2o.quirks.PostgresQuirks;
+import org.sql2o.quirks.Quirks;
+
+import data.ArrayConverter;
 import data.HerokuDataSource;
 import models.Alert;
 import models.Sql2oModel;
@@ -15,7 +20,8 @@ public class Notifier {
 	private Sql2oModel _model;
     
     public Notifier(){
-    	_model = new Sql2oModel(new Sql2o(new HerokuDataSource()));
+    	Quirks arraySupport = ArrayConverter.arrayConvertingQuirks(new PostgresQuirks(), true, false);
+    	_model = new Sql2oModel(new Sql2o(new HerokuDataSource(),arraySupport));
     }
 	public boolean sendDailyUpdates(){
 		HashMap<String, ArrayList<Alert>> alertsByCountry;

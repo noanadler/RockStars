@@ -111,15 +111,16 @@ public class Registrator {
     }
     private void removeSubscriber(String country, String userEmail){
     	List<String> subs = _model.getCountrySubscribers(country);
-    	if(subs == null) return;
-    	HashSet<String> subsSet = new HashSet<>(subs);
-    	subsSet.remove(userEmail);
-    	_model.updateSubscribers(country, new ArrayList<String>(subsSet));
+    	subs.remove(userEmail);
+    	_model.updateSubscribers(country, subs);
     }
     private void addSubscriber(String country, String userEmail){
     	List<String> subs = _model.getCountrySubscribers(country);
     	if(subs == null){
     		subs = new ArrayList<String>();	
+    	}
+    	else if(subs.contains(userEmail)){
+    		return;
     	}
     	subs.add(userEmail);
     	_model.updateSubscribers(country, subs);

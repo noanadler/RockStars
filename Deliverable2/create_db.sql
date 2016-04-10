@@ -78,6 +78,6 @@ CREATE TABLE IF NOT EXISTS packed_items (
 DROP TABLE IF EXISTS country_lists;
 CREATE TABLE IF NOT EXISTS country_lists (
     country text PRIMARY KEY,
-    emails text[],
+    emails text,
     FOREIGN KEY ( country ) REFERENCES travel_information (country)
 );

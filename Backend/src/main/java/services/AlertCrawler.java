@@ -108,7 +108,9 @@ public class AlertCrawler {
 		    		  countryAlerts.add(alertObj);
 		    		}
 	    	}
-	    	curAlerts.put(country, countryAlerts);
+	    	if(countryAlerts.size() > 0){
+		    	curAlerts.put(country, countryAlerts);
+	    	}
 	        it.remove();
 	    }
 		return curAlerts;
