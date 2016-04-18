@@ -264,7 +264,7 @@ public class Sql2oModel implements Model {
 	public List<Alert> getCountryAlerts(Country country) {
         try (Connection conn = sql2o.open()) {
             List<Alert> alerts = conn.createQuery("select * from alerts where country_id=:country")
-        		.addParameter("country", country.getFullName())
+        		.addParameter("country", country.getCountry())
                 .executeAndFetch(Alert.class);
             return alerts;
         }
