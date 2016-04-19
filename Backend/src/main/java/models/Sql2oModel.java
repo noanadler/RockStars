@@ -96,6 +96,9 @@ public class Sql2oModel implements Model {
 		try (Connection conn = sql2o.open()) {
 			List<User> users = conn.createQuery("select * from users where id = '" + uId + "'")  
 	                .executeAndFetch(User.class);
+			if(users.isEmpty()) {
+				return null;
+			}
 			User user = users.get(0);
 			user.setVaccines(getUserVaccines(user));
 			return user;
