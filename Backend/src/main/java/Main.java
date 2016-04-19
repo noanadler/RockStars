@@ -73,7 +73,6 @@ public class Main {
         });  
         
         before("/testauth", new XHRRequiresAuthenticationFilter(config, "HeaderClient"));
-        before("/users", new XHRRequiresAuthenticationFilter(config, "HeaderClient"));
         before("/users/:uuid", new XHRRequiresAuthenticationFilter(config, "HeaderClient"));
         before("/currentuuid", new XHRRequiresAuthenticationFilter(config, "HeaderClient"));
         before("/vaccine/add", new XHRRequiresAuthenticationFilter(config, "HeaderClient"));
@@ -181,17 +180,6 @@ public class Main {
 			res.status(200);
 			res.type("application/json");
         	return json;  		
-        });
-        
-        // Return JSON list of users
-        get("/users", (req, res) -> {
-        	Gson gson = new Gson();
-        	List<User> users = model.getUsers();
-        	String json = gson.toJson(users);
-			
-			res.status(200);
-			res.type("application/json");
-        	return json;        	
         });
         
      // Return JSON list of users
