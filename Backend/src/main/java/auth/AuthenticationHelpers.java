@@ -3,6 +3,7 @@ package auth;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,9 +29,11 @@ public class AuthenticationHelpers {
 	           PBEKeySpec spec = new PBEKeySpec( password, JWT_SALT.getBytes(), 1000, 16 );
 	           SecretKey key = skf.generateSecret( spec );
 	           byte[] res = key.getEncoded( );
-	           return new String(res, "UTF-8");
+	           Base64.Encoder enc = Base64.getEncoder();
+
+	           return enc.encodeToString(res);
 	 
-	       } catch( NoSuchAlgorithmException | InvalidKeySpecException | UnsupportedEncodingException e ) {
+	       } catch( NoSuchAlgorithmException | InvalidKeySpecException e) {
 	           throw new RuntimeException( e );
 	       }
 	   }
