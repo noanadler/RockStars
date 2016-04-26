@@ -40,7 +40,7 @@ var User = Ember.Object.extend({
       alerts.pushObjects(c.get('alerts'));
     });
 
-    return this.uniqByName(alerts);
+    return this.uniqByTitle(alerts);
   }),
   uniqByName: function(items) {
     var names = [];
@@ -49,6 +49,19 @@ var User = Ember.Object.extend({
     items.forEach(function(item) {
         if(!names.contains(item.get('name'))) {
           names.pushObject(item.get('name'));
+          uniqItems.pushObject(item);
+        }
+    });
+
+    return uniqItems;
+  },
+  uniqByTitle: function(items) {
+    var names = [];
+    var uniqItems = []
+
+    items.forEach(function(item) {
+        if(!names.contains(item.get('title'))) {
+          names.pushObject(item.get('title'));
           uniqItems.pushObject(item);
         }
     });
