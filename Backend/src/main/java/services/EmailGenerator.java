@@ -46,7 +46,7 @@ public class EmailGenerator {
 	public void sendNotificationsToUser(String userEmail, List<String> userCountries, 
 			HashMap<String, ArrayList<Alert>> alertsByCountry){
     	User user = _model.getUserByEmail(userEmail);
-    	if(!user.getNotifications()) return;
+    	if(user == null || !user.getNotifications()) return;
     	String emailText = generateUpdateString(user.getName(), user.getId(), userCountries, alertsByCountry);
     	generateAndSendEmail(userEmail, UPDATE_TITLE, emailText);
     }
